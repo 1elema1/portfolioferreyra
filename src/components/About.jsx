@@ -8,12 +8,39 @@ const PILLAR_ICONS = [
   <Database className="h-5 w-5 text-accent" />,
 ];
 
+const DEFAULT_PILLARS = [
+  {
+    title: "Análisis & Requerimientos",
+    description: "Relevamiento de necesidades del cliente, diseño de soluciones a medida, modelado de sistemas en diagramas UML (casos de uso, clases, secuencia)."
+  },
+  {
+    title: "Desarrollo Frontend",
+    description: "Creación de interfaces gráficas interactivas con React, JavaScript moderno y Tailwind CSS, garantizando experiencia de usuario intuitiva y 100% responsiva."
+  },
+  {
+    title: "Backend & APIs REST",
+    description: "Desarrollo de servicios robustos con Node.js, Express y Java. Endpoints seguros, validaciones estrictas y arquitectura modular limpia."
+  },
+  {
+    title: "Bases de Datos & Deploy",
+    description: "Modelado e implementación de bases de datos relacionales (SQL / PostgreSQL / MySQL) y NoSQL (MongoDB, Firebase). Despliegue ágil en Vercel."
+  }
+];
+
+const DEFAULT_SOFT_SKILLS = [
+  "Trabajo en equipo y colaboración ágil",
+  "Comunicación clara y asertiva",
+  "Capacidad de aprendizaje continuo",
+  "Resolución analítica de problemas",
+  "Adaptabilidad y proactividad constante",
+  "Gestión organizada del tiempo"
+];
+
 export default function About() {
   const { personal } = usePortfolio();
 
-  const pillars = personal.pillars ?? [];
-
-  const softSkills = personal.softSkills ?? [];
+  const pillars = (personal.pillars && personal.pillars.length > 0) ? personal.pillars : DEFAULT_PILLARS;
+  const softSkills = (personal.softSkills && personal.softSkills.length > 0) ? personal.softSkills : DEFAULT_SOFT_SKILLS;
 
   return (
     <section id="about" className="relative py-24 border-t border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#07090e] transition-colors">
