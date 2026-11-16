@@ -96,6 +96,7 @@ export const projectsData = [
     image: null,
     status: "En Producción",
     statusType: "production", // opciones: 'production' | 'beta' | 'academic' | 'completed'
+    period: "2024 - Actualidad",
     featured: true, // Si es true, se muestra en el panel grande superior
     techStack: ["React", "Node.js", "Express", "Tailwind CSS", "SQL", "Vercel"],
     highlights: [
@@ -117,6 +118,7 @@ export const projectsData = [
     image: null,
     status: "Completado",
     statusType: "completed",
+    period: "2024",
     featured: false,
     techStack: ["Node.js", "Express.js", "PostgreSQL", "SQL", "REST API", "Git"],
     highlights: [
@@ -138,6 +140,7 @@ export const projectsData = [
     image: null,
     status: "Académico",
     statusType: "academic",
+    period: "2023 - 2024",
     featured: false,
     techStack: ["Java", "POO", "NetBeans", "MySQL", "UML", "Testing"],
     highlights: [
@@ -159,6 +162,7 @@ export const projectsData = [
     image: null,
     status: "En Producción",
     statusType: "production",
+    period: "2024 - Actualidad",
     featured: false,
     techStack: ["React", "Tailwind CSS", "Framer Motion", "Lucide Icons", "Vite", "Vercel"],
     highlights: [

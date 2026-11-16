@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import ProjectCard from './ProjectCard';
-import { FolderGit2, ExternalLink } from 'lucide-react';
+import ImageModal from './ImageModal';
+import { FolderGit2, ExternalLink, Calendar, Maximize2 } from 'lucide-react';
 import { GithubIcon } from './Icons';
 
 export default function Projects() {
   const { projects, personal } = usePortfolio();
+  const [featuredLightboxOpen, setFeaturedLightboxOpen] = useState(false);
   
   const featuredProject = projects.find(p => p.featured) || projects[0];
   const regularProjects = featuredProject ? projects.filter(p => p.id !== featuredProject.id) : [];
@@ -12,6 +15,40 @@ export default function Projects() {
   if (!projects || projects.length === 0) {
     return null;
   }
+
+  const getStatusBadge = (statusType, status) => {
+    const s = (status || '').toLowerCase();
+    if (s.includes('producción') || statusType === 'production') {
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          {status || 'En Producción'}
+        </span>
+      );
+    }
+    if (s.includes('proceso') || s.includes('desarrollo') || s.includes('beta') || statusType === 'beta') {
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 font-mono text-xs font-medium text-amber-600 dark:text-amber-400">
+          <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+          {status || 'En Proceso'}
+        </span>
+      );
+    }
+    if (s.includes('actualidad')) {
+      return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-light px-3 py-1 font-mono text-xs font-medium text-accent">
+          <span className="h-2 w-2 rounded-full bg-accent animate-pulse"></span>
+          {status || 'Actualidad'}
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-100 dark:bg-zinc-800 px-3 py-1 font-mono text-xs font-medium text-slate-700 dark:text-zinc-300">
+        <span className="h-2 w-2 rounded-full bg-slate-400 dark:bg-zinc-400"></span>
+        {status || 'Completado'}
+      </span>
+    );
+  };
 
   return (
     <section id="projects" className="relative py-24 border-t border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#07090e] transition-colors">
@@ -44,23 +81,36 @@ export default function Projects() {
 
         {/* Featured Project Showcase */}
         {featuredProject && (
-          <div className="mb-14 rounded-3xl border border-accent bg-white dark:bg-[#0b0f17] p-6 sm:p-8 relative overflow-hidden shadow-lg transition-all">
+          <div className="mb-14 rounded-3xl border border-accent/40 bg-white dark:bg-[#0b0f17] p-6 sm:p-8 relative overflow-hidden shadow-xl transition-all">
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center text-left">
               
-              <div className="lg:col-span-7 space-y-4">
-                <div className="flex items-center gap-2">
+              <div className="lg:col-span-6 space-y-4">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-accent bg-accent-light px-3 py-1 font-mono text-xs font-semibold text-accent">
                     <span className="h-2 w-2 rounded-full bg-accent animate-pulse"></span>
                     Proyecto Insignia
                   </span>
-                  <span className="text-xs font-mono text-slate-500 dark:text-zinc-400">
-                    {featuredProject.category}
-                  </span>
+
+                  {/* Estado dinámico */}
+                  {getStatusBadge(featuredProject.statusType, featuredProject.status)}
+
+                  {/* Periodo de tiempo */}
+                  {featuredProject.period && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-900 px-3 py-1 font-mono text-xs text-slate-600 dark:text-zinc-400">
+                      <Calendar className="h-3.5 w-3.5 text-accent" />
+                      <span>{featuredProject.period}</span>
+                    </span>
+                  )}
                 </div>
 
-                <h3 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
-                  {featuredProject.title}
-                </h3>
+                <div className="pt-1">
+                  <span className="font-mono text-xs uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                    {featuredProject.category}
+                  </span>
+                  <h3 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mt-0.5">
+                    {featuredProject.title}
+                  </h3>
+                </div>
 
                 <p className="text-sm sm:text-base text-slate-700 dark:text-zinc-300 leading-relaxed font-normal">
                   {featuredProject.detailedDescription}
@@ -121,20 +171,31 @@ export default function Projects() {
                 </div>
               </div>
 
-              {/* Right side: Project Image or Interactive Architecture Mock */}
-              <div className="lg:col-span-5 flex justify-center">
+              {/* Right side: Project Image Grande & Dinámica or Mockup */}
+              <div className="lg:col-span-6 flex justify-center w-full">
                 {featuredProject.image ? (
-                  <div className="w-full rounded-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-lg bg-slate-100 dark:bg-zinc-900">
+                  <div 
+                    onClick={() => setFeaturedLightboxOpen(true)}
+                    className="group relative w-full h-72 sm:h-84 md:h-96 rounded-2xl border border-slate-200 dark:border-zinc-800 overflow-hidden shadow-xl bg-slate-100 dark:bg-zinc-900 cursor-pointer"
+                    title="Clic para ampliar captura a pantalla completa"
+                  >
                     <img 
                       src={featuredProject.image} 
                       alt={featuredProject.title} 
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-auto object-cover max-h-80"
+                      className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
                     />
+                    {/* Hover Dynamic Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4">
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/90 dark:bg-zinc-900/90 text-slate-900 dark:text-white font-mono text-xs font-semibold shadow-xl backdrop-blur-xs scale-90 group-hover:scale-100 transition-transform duration-300">
+                        <Maximize2 className="h-4 w-4 text-accent" />
+                        <span>Ver captura completa en alta resolución</span>
+                      </span>
+                    </div>
                   </div>
                 ) : (
-                  <div className="w-full max-w-sm rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#07090e] p-6 font-mono text-xs shadow-md">
+                  <div className="w-full max-w-md rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#07090e] p-6 font-mono text-xs shadow-md">
                     <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400">
                       <div className="flex items-center gap-1.5">
                         <FolderGit2 className="h-4 w-4 text-accent" />
@@ -151,8 +212,8 @@ export default function Projects() {
                       <p className="text-accent font-medium">└── vercel.json (Deploy config)</p>
                       
                       <div className="mt-4 pt-3 border-t border-slate-200 dark:border-zinc-800 text-[11px] text-slate-500 dark:text-zinc-500 flex items-center justify-between">
-                        <span>Status: {featuredProject.status}</span>
-                        <span className="text-accent font-semibold">Full Stack</span>
+                        <span>Período: {featuredProject.period || 'Actualidad'}</span>
+                        <span className="text-accent font-semibold">{featuredProject.status}</span>
                       </div>
                     </div>
                   </div>
@@ -171,6 +232,17 @@ export default function Projects() {
         </div>
 
       </div>
+
+      {/* Lightbox Modal para el proyecto insignia */}
+      {featuredProject && (
+        <ImageModal
+          isOpen={featuredLightboxOpen}
+          imageUrl={featuredProject.image}
+          title={featuredProject.title}
+          demoUrl={featuredProject.demoUrl}
+          onClose={() => setFeaturedLightboxOpen(false)}
+        />
+      )}
     </section>
   );
 }

@@ -66,6 +66,7 @@ export default function AdminModal({ isOpen, onClose }) {
     image: null,
     status: 'En Producción',
     statusType: 'production',
+    period: '2024 - Actualidad',
     featured: false,
     techStack: 'React, Node.js, Express, Tailwind CSS',
     highlights: 'Catálogo responsivo\nIntegración de APIs\nControl de stock',
@@ -148,6 +149,7 @@ export default function AdminModal({ isOpen, onClose }) {
       image: null,
       status: 'En Producción',
       statusType: 'production',
+      period: '2024 - Actualidad',
       featured: false,
       techStack: 'React, Node.js, Tailwind CSS',
       highlights: 'Diseño 100% responsivo\nArquitectura modular\nTesting y depuración',
@@ -168,6 +170,7 @@ export default function AdminModal({ isOpen, onClose }) {
       image: p.image || null,
       status: p.status || 'En Producción',
       statusType: p.statusType || 'production',
+      period: p.period || '2024 - Actualidad',
       featured: p.featured || false,
       techStack: Array.isArray(p.techStack) ? p.techStack.join(', ') : p.techStack,
       highlights: Array.isArray(p.highlights) ? p.highlights.join('\n') : p.highlights,
@@ -709,6 +712,11 @@ export default function AdminModal({ isOpen, onClose }) {
                                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400">
                                     {p.status}
                                   </span>
+                                  {p.period && (
+                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-accent">
+                                      📅 {p.period}
+                                    </span>
+                                  )}
                                 </div>
                                 <p className="text-xs text-zinc-400 line-clamp-1">{p.shortDescription}</p>
                               </div>
@@ -868,18 +876,48 @@ export default function AdminModal({ isOpen, onClose }) {
                             onChange={(e) => {
                               const val = e.target.value;
                               let t = 'production';
-                              if (val === 'Beta') t = 'beta';
-                              if (val === 'Académico') t = 'academic';
-                              if (val === 'Completado') t = 'completed';
+                              if (val.includes('Beta') || val.includes('Proceso') || val.includes('Desarrollo')) t = 'beta';
+                              if (val.includes('Académico')) t = 'academic';
+                              if (val.includes('Completado')) t = 'completed';
                               setProjectForm({ ...projectForm, status: val, statusType: t });
                             }}
                             className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
                           >
                             <option value="En Producción">En Producción</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Actualidad">Actualidad</option>
+                            <option value="Beta">Beta / En Desarrollo</option>
+                            <option value="Académico">Académico / Universidad</option>
                             <option value="Completado">Completado</option>
-                            <option value="Beta">Beta</option>
-                            <option value="Académico">Académico</option>
                           </select>
+                        </div>
+                      </div>
+
+                      {/* Periodo de Tiempo */}
+                      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
+                        <label className="block text-xs font-mono text-zinc-400 mb-1.5 flex items-center justify-between">
+                          <span>Período de Tiempo (Desde - Hasta / Estado temporal)</span>
+                          <span className="text-[10px] text-accent font-semibold font-mono">📅 Visible en la tarjeta</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ej: 2024 - Actualidad, 2023 - 2024, En proceso, Actualidad..."
+                          value={projectForm.period || ''}
+                          onChange={(e) => setProjectForm({ ...projectForm, period: e.target.value })}
+                          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                        />
+                        <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                          <span className="text-[10px] text-zinc-500 font-mono">Sugerencias rápidas:</span>
+                          {['2024 - Actualidad', '2023 - 2024', 'En proceso', 'Actualidad', '2024', '2023'].map(sugg => (
+                            <button
+                              key={sugg}
+                              type="button"
+                              onClick={() => setProjectForm({ ...projectForm, period: sugg })}
+                              className="px-2 py-0.5 rounded-md border border-zinc-800 bg-zinc-950 text-[10px] font-mono text-zinc-400 hover:text-white hover:border-accent cursor-pointer transition-colors"
+                            >
+                              + {sugg}
+                            </button>
+                          ))}
                         </div>
                       </div>
 
