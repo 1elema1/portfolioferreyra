@@ -3,7 +3,8 @@ import { usePortfolio, ACCENT_PALETTES } from '../context/PortfolioContext';
 import { 
   X, Lock, Unlock, Plus, Edit2, Trash2, Image as ImageIcon, 
   Upload, Star, Save, RefreshCw, Key, LogOut, CheckCircle2, AlertCircle, 
-  ArrowLeft, Download, Palette, Layers, User, Code2, Briefcase, Sun, Moon, Eye, EyeOff
+  ArrowLeft, Download, Palette, Layers, User, Code2, Briefcase, Sun, Moon, Eye, EyeOff,
+  Cloud
 } from 'lucide-react';
 
 export default function AdminModal({ isOpen, onClose }) {
@@ -35,7 +36,7 @@ export default function AdminModal({ isOpen, onClose }) {
     login, 
     logout, 
     changePassword,
-    savePersonalData
+    syncAllToFirebase
   } = usePortfolio();
 
   // Estados de login
@@ -188,10 +189,41 @@ export default function AdminModal({ isOpen, onClose }) {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Redimensionar y comprimir la imagen en el cliente para que sea ultraliviana
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setProjectForm(prev => ({ ...prev, image: reader.result }));
-      notify('Imagen cargada');
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1000;
+        const MAX_HEIGHT = 700;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Comprimir en JPEG ligero (calidad 0.75, suele pesar menos de 60-80KB)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+        setProjectForm(prev => ({ ...prev, image: compressedDataUrl }));
+        notify('Imagen optimizada y cargada');
+      };
+      img.src = event.target.result;
     };
     reader.readAsDataURL(file);
   };
@@ -444,6 +476,23 @@ export default function AdminModal({ isOpen, onClose }) {
 
                 {/* Acciones derecha */}
                 <div className="ml-auto flex items-center gap-2">
+                  <button
+                    onClick={async () => {
+                      notify('Sincronizando con Firebase...');
+                      const ok = await syncAllToFirebase();
+                      if (ok) {
+                        notify('¡Todo sincronizado en la nube con éxito!');
+                      } else {
+                        notify('Error al sincronizar. Revisa las reglas de Firestore.');
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-accent text-white hover:opacity-90 cursor-pointer shadow-sm text-xs font-semibold"
+                    title="Enviar todos los datos a la nube para que se vean en celulares"
+                  >
+                    <Cloud className="h-3.5 w-3.5" />
+                    <span>Guardar en la Nube</span>
+                  </button>
+
                   <button
                     onClick={handleExportData}
                     className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white cursor-pointer"

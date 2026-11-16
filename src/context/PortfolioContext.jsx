@@ -204,8 +204,30 @@ export function PortfolioProvider({ children }) {
     try {
       const portfolioDocRef = doc(db, 'portfolio', 'content');
       await setDoc(portfolioDocRef, partialData, { merge: true });
+      return true;
     } catch (e) {
       console.warn('Error guardando en Firebase Firestore:', e);
+      return false;
+    }
+  };
+
+  // Función para subir de un solo clic todo el contenido actual del navegador a Firebase
+  const syncAllToFirebase = async () => {
+    try {
+      const portfolioDocRef = doc(db, 'portfolio', 'content');
+      await setDoc(portfolioDocRef, {
+        personal,
+        projects,
+        skills,
+        experience,
+        education,
+        sections,
+        accentKey
+      }, { merge: true });
+      return true;
+    } catch (e) {
+      console.error('Error al sincronizar todo en Firebase:', e);
+      return false;
     }
   };
 
@@ -478,6 +500,8 @@ export function PortfolioProvider({ children }) {
         updateEducationItem,
         deleteEducationItem,
         resetAllToDefault,
+        syncAllToFirebase,
+        syncToFirebase,
         isAdminAuthenticated,
         login,
         logout,
