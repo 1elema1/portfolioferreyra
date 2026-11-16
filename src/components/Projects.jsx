@@ -1,11 +1,13 @@
-import { projectsData, personalData } from '../data/portfolioData';
+import { personalData } from '../data/portfolioData';
+import { usePortfolio } from '../context/PortfolioContext';
 import ProjectCard from './ProjectCard';
-import { FolderGit2, Sparkles, ExternalLink } from 'lucide-react';
+import { FolderGit2, Sparkles, ExternalLink, PlusCircle } from 'lucide-react';
 import { GithubIcon } from './Icons';
 
 export default function Projects() {
-  const featuredProject = projectsData.find(p => p.featured) || projectsData[0];
-  const regularProjects = projectsData.filter(p => p.id !== featuredProject.id);
+  const { projects } = usePortfolio();
+  const featuredProject = projects.find(p => p.featured) || projects[0];
+  const regularProjects = featuredProject ? projects.filter(p => p.id !== featuredProject.id) : [];
 
   return (
     <section id="projects" className="relative py-24 border-t border-zinc-900 bg-zinc-950">

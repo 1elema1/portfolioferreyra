@@ -1,7 +1,7 @@
 import { personalData } from '../data/portfolioData';
-import { ArrowUp, Terminal } from 'lucide-react';
+import { ArrowUp, Terminal, Lock } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ onOpenAdmin }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -23,14 +23,28 @@ export default function Footer() {
           Desarrollado con React 19 + Tailwind v4 · Deploy en Vercel
         </p>
 
-        {/* Back to top */}
-        <button
-          onClick={scrollToTop}
-          className="group inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-zinc-300 hover:border-blue-500/40 hover:text-white transition-all cursor-pointer"
-        >
-          <span>Inicio</span>
-          <ArrowUp className="h-3 w-3 text-blue-400 transition-transform group-hover:-translate-y-0.5" />
-        </button>
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onOpenAdmin}
+            className="inline-flex items-center gap-1 text-[11px] text-zinc-500 hover:text-blue-300 transition-colors cursor-pointer"
+            title="Acceso al panel de administración"
+          >
+            <Lock className="h-3 w-3" />
+            <span>Admin</span>
+          </button>
+
+          <span className="text-zinc-800">|</span>
+
+          {/* Back to top */}
+          <button
+            onClick={scrollToTop}
+            className="group inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-zinc-300 hover:border-blue-500/40 hover:text-white transition-all cursor-pointer"
+          >
+            <span>Inicio</span>
+            <ArrowUp className="h-3 w-3 text-blue-400 transition-transform group-hover:-translate-y-0.5" />
+          </button>
+        </div>
 
       </div>
 

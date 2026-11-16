@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { PortfolioProvider } from './context/PortfolioContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -6,11 +8,14 @@ import Projects from './components/Projects';
 import Experience from './components/Experience';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import AdminModal from './components/AdminModal';
 
-function App() {
+function PortfolioApp() {
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-emerald-500/20 selection:text-emerald-300">
-      <Navbar />
+    <div className="min-h-screen bg-black text-white flex flex-col selection:bg-blue-600/30 selection:text-blue-200">
+      <Navbar onOpenAdmin={() => setIsAdminModalOpen(true)} />
       <main className="flex-1">
         <Hero />
         <About />
@@ -19,9 +24,21 @@ function App() {
         <Experience />
         <Contact />
       </main>
-      <Footer />
+      <Footer onOpenAdmin={() => setIsAdminModalOpen(true)} />
+      
+      {/* Modal de Administración Privado */}
+      <AdminModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+      />
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <PortfolioProvider>
+      <PortfolioApp />
+    </PortfolioProvider>
+  );
+}
