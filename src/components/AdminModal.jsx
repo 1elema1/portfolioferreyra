@@ -1,39 +1,61 @@
 import { useState, useRef } from 'react';
-import { usePortfolio } from '../context/PortfolioContext';
+import { usePortfolio, ACCENT_PALETTES } from '../context/PortfolioContext';
 import { 
   X, Lock, Unlock, Plus, Edit2, Trash2, Image as ImageIcon, 
-  Upload, Star, Save, RefreshCw, Key, LogOut, CheckCircle2, AlertCircle, Eye, ArrowLeft, Download
+  Upload, Star, Save, RefreshCw, Key, LogOut, CheckCircle2, AlertCircle, 
+  ArrowLeft, Download, Palette, Layers, User, Code2, Briefcase, Sun, Moon, Eye, EyeOff
 } from 'lucide-react';
 
 export default function AdminModal({ isOpen, onClose }) {
   const { 
+    themeMode,
+    toggleTheme,
+    accentKey,
+    setAccentKey,
+    sections,
+    toggleSection,
+    personal,
+    updatePersonal,
+    skills,
+    updateSkillsCategory,
     projects, 
-    isAdminAuthenticated, 
-    login, 
-    logout, 
-    changePassword,
     addProject, 
     updateProject, 
     deleteProject, 
-    resetToDefault 
+    experience,
+    addExperience,
+    updateExperienceItem,
+    deleteExperienceItem,
+    education,
+    addEducation,
+    updateEducationItem,
+    deleteEducationItem,
+    resetAllToDefault,
+    isAdminAuthenticated, 
+    login, 
+    logout, 
+    changePassword
   } = usePortfolio();
 
   // Estados de login
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  // Estados de navegación dentro del panel
-  const [activeView, setActiveView] = useState('list'); // 'list' | 'form' | 'settings'
-  const [editingId, setEditingId] = useState(null);
+  // Navegación de pestañas en el panel
+  // 'sections' | 'personal' | 'projects' | 'skills' | 'experience' | 'security'
+  const [activeTab, setActiveTab] = useState('sections');
+  const [projectSubView, setProjectSubView] = useState('list'); // 'list' | 'form'
+  const [editingProjectId, setEditingProjectId] = useState(null);
   const [notification, setNotification] = useState(null);
 
-  // Estados de cambio de contraseña
+  // Estados de formularios
+  const [personalForm, setPersonalForm] = useState({ ...personal });
   const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [pwdMsg, setPwdMsg] = useState('');
 
-  // Estado del formulario de proyecto
-  const [formData, setFormData] = useState({
+  // Estado formulario de proyectos
+  const [projectForm, setProjectForm] = useState({
     title: '',
     category: 'Full Stack',
     tagline: '',
@@ -49,16 +71,39 @@ export default function AdminModal({ isOpen, onClose }) {
     githubUrl: 'https://github.com/1elema1'
   });
 
+  // Estado para agregar habilidad rápida
+  const [newSkillCategory, setNewSkillCategory] = useState('frontend');
+  const [newSkillName, setNewSkillName] = useState('');
+
+  // Estado formulario experiencia
+  const [expForm, setExpForm] = useState({
+    period: '2026 - Presente',
+    role: '',
+    company: '',
+    description: '',
+    badge: 'Nuevo'
+  });
+  const [showExpModal, setShowExpModal] = useState(false);
+
+  // Estado formulario educación
+  const [eduForm, setEduForm] = useState({
+    title: '',
+    institution: '',
+    period: '2023 - 2026',
+    details: ''
+  });
+  const [showEduModal, setShowEduModal] = useState(false);
+
   const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const showNotification = (msg, type = 'success') => {
-    setNotification({ msg, type });
+  const notify = (msg) => {
+    setNotification(msg);
     setTimeout(() => setNotification(null), 3000);
   };
 
-  // Manejador de Login
+  // Manejador Login
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     setLoginError('');
@@ -67,13 +112,21 @@ export default function AdminModal({ isOpen, onClose }) {
       setLoginError(res.message);
     } else {
       setPasswordInput('');
+      setPersonalForm({ ...personal });
     }
   };
 
-  // Abrir formulario para crear nuevo proyecto
-  const handleCreateNew = () => {
-    setEditingId(null);
-    setFormData({
+  // Guardar Datos Personales
+  const handlePersonalSubmit = (e) => {
+    e.preventDefault();
+    updatePersonal(personalForm);
+    notify('Datos personales actualizados');
+  };
+
+  // Manejar proyectos
+  const handleOpenNewProject = () => {
+    setEditingProjectId(null);
+    setProjectForm({
       title: '',
       category: 'Full Stack',
       tagline: '',
@@ -88,122 +141,122 @@ export default function AdminModal({ isOpen, onClose }) {
       demoUrl: 'https://github.com/1elema1',
       githubUrl: 'https://github.com/1elema1'
     });
-    setActiveView('form');
+    setProjectSubView('form');
   };
 
-  // Abrir formulario para editar proyecto existente
-  const handleEditClick = (project) => {
-    setEditingId(project.id);
-    setFormData({
-      title: project.title,
-      category: project.category,
-      tagline: project.tagline || '',
-      shortDescription: project.shortDescription || '',
-      detailedDescription: project.detailedDescription || '',
-      image: project.image || null,
-      status: project.status || 'En Producción',
-      statusType: project.statusType || 'production',
-      featured: project.featured || false,
-      techStack: Array.isArray(project.techStack) ? project.techStack.join(', ') : project.techStack,
-      highlights: Array.isArray(project.highlights) ? project.highlights.join('\n') : project.highlights,
-      demoUrl: project.demoUrl || '',
-      githubUrl: project.githubUrl || ''
+  const handleEditProjectClick = (p) => {
+    setEditingProjectId(p.id);
+    setProjectForm({
+      title: p.title,
+      category: p.category,
+      tagline: p.tagline || '',
+      shortDescription: p.shortDescription || '',
+      detailedDescription: p.detailedDescription || '',
+      image: p.image || null,
+      status: p.status || 'En Producción',
+      statusType: p.statusType || 'production',
+      featured: p.featured || false,
+      techStack: Array.isArray(p.techStack) ? p.techStack.join(', ') : p.techStack,
+      highlights: Array.isArray(p.highlights) ? p.highlights.join('\n') : p.highlights,
+      demoUrl: p.demoUrl || '',
+      githubUrl: p.githubUrl || ''
     });
-    setActiveView('form');
+    setProjectSubView('form');
   };
 
-  // Subir imagen local desde la PC (convierte a Base64)
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    if (file.size > 3 * 1024 * 1024) {
-      alert('La imagen es algo pesada (más de 3MB). Te recomendamos una imagen menor a 2MB para mejor velocidad.');
-    }
-
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFormData(prev => ({ ...prev, image: reader.result }));
-      showNotification('Imagen cargada correctamente');
+      setProjectForm(prev => ({ ...prev, image: reader.result }));
+      notify('Imagen cargada');
     };
     reader.readAsDataURL(file);
   };
 
-  // Guardar proyecto (crear o actualizar)
-  const handleFormSubmit = (e) => {
+  const handleProjectSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title.trim()) {
-      alert('Por favor escribe un título para el proyecto');
+    if (!projectForm.title.trim()) {
+      alert('Por favor ingresa un título');
       return;
     }
+    const techArray = projectForm.techStack.split(',').map(t => t.trim()).filter(Boolean);
+    const highlightsArray = projectForm.highlights.split('\n').map(h => h.trim()).filter(Boolean);
 
-    const techArray = formData.techStack
-      .split(',')
-      .map(t => t.trim())
-      .filter(Boolean);
-
-    const highlightsArray = formData.highlights
-      .split('\n')
-      .map(h => h.trim())
-      .filter(Boolean);
-
-    const projectPayload = {
-      ...formData,
-      techStack: techArray.length > 0 ? techArray : ['React'],
-      highlights: highlightsArray.length > 0 ? highlightsArray : ['Desarrollo web a medida']
+    const payload = {
+      ...projectForm,
+      techStack: techArray.length ? techArray : ['React'],
+      highlights: highlightsArray.length ? highlightsArray : ['Desarrollo a medida']
     };
 
-    if (editingId) {
-      updateProject(editingId, projectPayload);
-      showNotification('Proyecto actualizado con éxito');
+    if (editingProjectId) {
+      updateProject(editingProjectId, payload);
+      notify('Proyecto actualizado');
     } else {
-      addProject(projectPayload);
-      showNotification('Nuevo proyecto agregado al portfolio');
+      addProject(payload);
+      notify('Nuevo proyecto creado');
     }
-
-    setActiveView('list');
+    setProjectSubView('list');
   };
 
-  // Eliminar proyecto
-  const handleDelete = (id, title) => {
-    if (window.confirm(`¿Estás seguro de que deseas eliminar el proyecto "${title}"?`)) {
-      deleteProject(id);
-      showNotification('Proyecto eliminado');
-    }
+  // Agregar habilidad
+  const handleAddSkill = (e) => {
+    e.preventDefault();
+    if (!newSkillName.trim()) return;
+    const currentList = skills[newSkillCategory] || [];
+    updateSkillsCategory(newSkillCategory, [...currentList, { name: newSkillName.trim(), level: 'Avanzado' }]);
+    setNewSkillName('');
+    notify('Habilidad agregada');
   };
 
-  // Descargar archivo portfolioData.js actualizado para producción
-  const handleDownloadCode = () => {
-    const fileContent = `export const projectsData = ${JSON.stringify(projects, null, 2)};`;
-    const blob = new Blob([fileContent], { type: 'text/javascript' });
+  const handleRemoveSkill = (categoryKey, index) => {
+    const currentList = skills[categoryKey] || [];
+    updateSkillsCategory(categoryKey, currentList.filter((_, i) => i !== index));
+    notify('Habilidad eliminada');
+  };
+
+  // Exportar código
+  const handleExportData = () => {
+    const exportObject = {
+      personal,
+      skills,
+      projects,
+      experience,
+      education,
+      sections,
+      accentKey
+    };
+    const content = `export const portfolioDataBackup = ${JSON.stringify(exportObject, null, 2)};`;
+    const blob = new Blob([content], { type: 'text/javascript' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'projectsData-export.js';
+    a.download = `portfolio-backup-${Date.now()}.js`;
     a.click();
     URL.revokeObjectURL(url);
-    showNotification('Archivo exportado con éxito');
+    notify('Copia de respaldo descargada');
   };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border border-blue-500/30 bg-zinc-950 text-white shadow-2xl shadow-blue-950/60 overflow-hidden font-sans">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-3xl border border-zinc-800 bg-zinc-950 text-white shadow-2xl overflow-hidden font-sans">
         
         {/* Header Modal */}
-        <div className="flex items-center justify-between border-b border-zinc-800 bg-black/60 px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600/20 border border-blue-500/40 text-blue-400">
+        <div className="flex items-center justify-between border-b border-zinc-800 bg-black/80 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-light border border-accent text-accent">
               {isAdminAuthenticated ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
             </span>
             <div>
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                Panel de Administración Privado
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30">
-                  Solo Propietario
+                Panel de Control Integral
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-light text-accent border border-accent">
+                  Propietario
                 </span>
               </h2>
               <p className="text-xs text-zinc-400 font-light">
-                {isAdminAuthenticated ? 'Gestiona, agrega, edita o elimina proyectos en tiempo real' : 'Acceso restringido para Emanuel Ferreyra'}
+                {isAdminAuthenticated ? 'Control total de secciones, diseño, proyectos y contenidos' : 'Acceso exclusivo para Emanuel Ferreyra'}
               </p>
             </div>
           </div>
@@ -217,187 +270,710 @@ export default function AdminModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Notificación flotante */}
+        {/* Notificación */}
         {notification && (
-          <div className="mx-6 mt-4 p-3 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-200 text-xs flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-blue-400 shrink-0" />
-            <span>{notification.msg}</span>
+          <div className="mx-6 mt-4 p-3 rounded-xl bg-accent-light border border-accent text-accent text-xs flex items-center gap-2 font-medium">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <span>{notification}</span>
           </div>
         )}
 
-        {/* Body Modal */}
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Contenido Principal */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {!isAdminAuthenticated ? (
-            /* Pantalla de Login */
+            /* Login Form */
             <div className="max-w-md mx-auto py-12 text-center">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600/15 border border-blue-500/30 text-blue-400 mb-5">
+              <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-light border border-accent text-accent mb-5">
                 <Lock className="h-7 w-7" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Ingresar al Panel de Control</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Acceso Administrativo</h3>
               <p className="text-xs text-zinc-400 mb-6 font-light">
-                Ingresa tu clave de administrador para gestionar tus proyectos.
+                Ingresa tu clave de administrador para acceder al panel de control.
               </p>
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
-                <div>
-                  <input
-                    type="password"
-                    placeholder="Contraseña de administrador"
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
-                    autoFocus
-                  />
-                  {loginError && (
-                    <p className="mt-2 text-xs text-red-400 flex items-center justify-center gap-1">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      {loginError}
-                    </p>
-                  )}
-                </div>
-
+                <input
+                  type="password"
+                  placeholder="Contraseña de administrador"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-accent focus:outline-none font-mono"
+                  autoFocus
+                />
+                {loginError && (
+                  <p className="text-xs text-red-400 flex items-center justify-center gap-1">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {loginError}
+                  </p>
+                )}
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/25 cursor-pointer"
+                  className="w-full rounded-xl bg-accent bg-accent-hover py-3 text-sm font-semibold text-white transition-all shadow-lg cursor-pointer"
                 >
-                  Acceder al Panel
+                  Entrar al Panel
                 </button>
               </form>
-
               <div className="mt-6 pt-4 border-t border-zinc-900 text-xs text-zinc-500 font-mono">
-                Clave inicial por defecto: <span className="text-blue-400">emanuel2026</span>
+                Clave inicial: <span className="text-accent font-bold">emanuel2026</span>
               </div>
             </div>
           ) : (
             /* Panel autenticado */
-            <div>
-              {/* Barra de pestañas y acciones rápidas */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-zinc-800">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setActiveView('list')}
-                    className={`px-4 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                      activeView === 'list'
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                        : 'bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800'
-                    }`}
-                  >
-                    Proyectos ({projects.length})
-                  </button>
-                  <button
-                    onClick={handleCreateNew}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                      activeView === 'form' && !editingId
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                        : 'bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800'
-                    }`}
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Nuevo Proyecto
-                  </button>
-                  <button
-                    onClick={() => setActiveView('settings')}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer ${
-                      activeView === 'settings'
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
-                        : 'bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800'
-                    }`}
-                  >
-                    <Key className="h-3.5 w-3.5" />
-                    Seguridad
-                  </button>
-                </div>
+            <div className="space-y-6">
+              
+              {/* Barra de pestañas */}
+              <div className="flex flex-wrap items-center gap-2 pb-4 border-b border-zinc-800 text-xs">
+                <button
+                  onClick={() => setActiveTab('sections')}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'sections' 
+                      ? 'bg-accent text-white font-semibold shadow-md' 
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Palette className="h-3.5 w-3.5" />
+                  <span>Secciones & Color</span>
+                </button>
 
-                <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setActiveTab('personal')}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'personal' 
+                      ? 'bg-accent text-white font-semibold shadow-md' 
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <User className="h-3.5 w-3.5" />
+                  <span>Perfil & Bio</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveTab('projects');
+                    setProjectSubView('list');
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'projects' 
+                      ? 'bg-accent text-white font-semibold shadow-md' 
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                  <span>Proyectos ({projects.length})</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('skills')}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'skills' 
+                      ? 'bg-accent text-white font-semibold shadow-md' 
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Code2 className="h-3.5 w-3.5" />
+                  <span>Habilidades</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('experience')}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'experience' 
+                      ? 'bg-accent text-white font-semibold shadow-md' 
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Briefcase className="h-3.5 w-3.5" />
+                  <span>Experiencia</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('security')}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'security' 
+                      ? 'bg-accent text-white font-semibold shadow-md' 
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Key className="h-3.5 w-3.5" />
+                  <span>Seguridad</span>
+                </button>
+
+                {/* Acciones derecha */}
+                <div className="ml-auto flex items-center gap-2">
                   <button
-                    onClick={handleDownloadCode}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 text-xs font-medium text-zinc-300 hover:text-white hover:border-zinc-700 transition-colors cursor-pointer"
-                    title="Exportar archivo de datos para respaldo"
+                    onClick={handleExportData}
+                    className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white cursor-pointer"
+                    title="Exportar respaldo"
                   >
-                    <Download className="h-3.5 w-3.5 text-blue-400" />
+                    <Download className="h-3.5 w-3.5 text-accent" />
                     <span>Exportar</span>
                   </button>
 
                   <button
                     onClick={logout}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 text-xs font-medium text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-colors cursor-pointer"
-                    title="Cerrar sesión de administrador"
+                    className="p-2 rounded-xl border border-zinc-800 bg-zinc-900 text-red-400 hover:bg-red-500/10 cursor-pointer"
+                    title="Cerrar sesión de admin"
                   >
                     <LogOut className="h-3.5 w-3.5" />
-                    <span>Salir</span>
                   </button>
                 </div>
               </div>
 
-              {/* Vistas del Panel */}
+              {/* PESTAÑA 1: SECCIONES Y COLORES */}
+              {activeTab === 'sections' && (
+                <div className="space-y-6 text-left">
+                  {/* Selector de color de acento */}
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+                    <h4 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                      <Palette className="h-4 w-4 text-accent" />
+                      Color de Acento de la Página
+                    </h4>
+                    <p className="text-xs text-zinc-400 mb-4 font-light">
+                      Elige el tono que destacará en botones, badges, terminal y resplandores en todo el sitio:
+                    </p>
 
-              {/* VISTA 1: LISTADO DE PROYECTOS */}
-              {activeView === 'list' && (
-                <div className="pt-6 space-y-4">
-                  <div className="flex items-center justify-between text-xs text-zinc-400 font-light">
-                    <p>Estos proyectos se reflejan en tiempo real en la vista pública de tu sitio:</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                      {Object.entries(ACCENT_PALETTES).map(([key, palette]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            setAccentKey(key);
+                            notify(`Color cambiado a ${palette.name}`);
+                          }}
+                          className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all cursor-pointer ${
+                            accentKey === key
+                              ? 'border-white bg-zinc-800/80 shadow-lg scale-105'
+                              : 'border-zinc-800 bg-zinc-950/60 hover:border-zinc-600'
+                          }`}
+                        >
+                          <span 
+                            className="h-7 w-7 rounded-full shadow-md"
+                            style={{ background: palette.hex }}
+                          ></span>
+                          <span className="text-[11px] font-medium text-zinc-300 text-center">
+                            {palette.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Toggle Modo Oscuro / Claro en Admin */}
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-white mb-1 flex items-center gap-2">
+                        {themeMode === 'dark' ? <Moon className="h-4 w-4 text-accent" /> : <Sun className="h-4 w-4 text-amber-400" />}
+                        Modo de Visualización Actual
+                      </h4>
+                      <p className="text-xs text-zinc-400 font-light">
+                        Actualmente el sitio se encuentra en: <strong className="text-accent">{themeMode === 'dark' ? 'Modo Oscuro (Dark)' : 'Modo Claro (Light)'}</strong>
+                      </p>
+                    </div>
+
                     <button
-                      onClick={resetToDefault}
-                      className="text-zinc-500 hover:text-zinc-300 inline-flex items-center gap-1 text-[11px] cursor-pointer"
-                      title="Restaura los 4 proyectos iniciales"
+                      onClick={toggleTheme}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white transition-colors cursor-pointer"
                     >
-                      <RefreshCw className="h-3 w-3" />
-                      Restaurar por defecto
+                      {themeMode === 'dark' ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-blue-400" />}
+                      <span>Cambiar a {themeMode === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}</span>
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3.5">
-                    {projects.map((proj) => (
-                      <div
-                        key={proj.id}
-                        className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors hover:border-blue-500/30 hover:bg-zinc-900/80"
-                      >
-                        <div className="flex items-center gap-3.5">
-                          {/* Miniatura de imagen o icono */}
-                          <div className="h-14 w-14 rounded-xl border border-zinc-800 bg-zinc-950 overflow-hidden flex items-center justify-center shrink-0">
-                            {proj.image ? (
-                              <img src={proj.image} alt={proj.title} className="h-full w-full object-cover" />
+                  {/* Interruptor de Visibilidad de Secciones */}
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+                    <h4 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-accent" />
+                      Mostrar u Ocultar Secciones
+                    </h4>
+                    <p className="text-xs text-zinc-400 mb-4 font-light">
+                      Activa o apaga cualquier bloque del portfolio con un solo clic. Si desactivas una sección, no será visible para los visitantes:
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {[
+                        { key: 'hero', name: 'Hero / Presentación & Terminal' },
+                        { key: 'about', name: 'Sobre Mí & Pilares Técnicos' },
+                        { key: 'skills', name: 'Habilidades & Stack Tecnológico' },
+                        { key: 'projects', name: 'Proyectos & Software' },
+                        { key: 'experience', name: 'Trayectoria & Educación' },
+                        { key: 'contact', name: 'Contacto & Redes' }
+                      ].map(sec => (
+                        <div
+                          key={sec.key}
+                          onClick={() => toggleSection(sec.key)}
+                          className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                            sections[sec.key]
+                              ? 'border-accent bg-accent-light text-white'
+                              : 'border-zinc-800 bg-zinc-950/70 text-zinc-500'
+                          }`}
+                        >
+                          <span className="text-xs font-medium">{sec.name}</span>
+                          {sections[sec.key] ? (
+                            <Eye className="h-4 w-4 text-accent shrink-0 ml-2" />
+                          ) : (
+                            <EyeOff className="h-4 w-4 text-zinc-600 shrink-0 ml-2" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* PESTAÑA 2: PERFIL Y BIO */}
+              {activeTab === 'personal' && (
+                <form onSubmit={handlePersonalSubmit} className="space-y-4 text-left">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Nombre Completo</label>
+                      <input
+                        type="text"
+                        value={personalForm.name}
+                        onChange={(e) => setPersonalForm({ ...personalForm, name: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Handle / Terminal ID</label>
+                      <input
+                        type="text"
+                        value={personalForm.handle}
+                        onChange={(e) => setPersonalForm({ ...personalForm, handle: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Título Profesional</label>
+                      <input
+                        type="text"
+                        value={personalForm.title}
+                        onChange={(e) => setPersonalForm({ ...personalForm, title: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Ubicación</label>
+                      <input
+                        type="text"
+                        value={personalForm.location}
+                        onChange={(e) => setPersonalForm({ ...personalForm, location: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-zinc-400 mb-1">Disponibilidad / Status</label>
+                    <input
+                      type="text"
+                      value={personalForm.status}
+                      onChange={(e) => setPersonalForm({ ...personalForm, status: e.target.value })}
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-zinc-400 mb-1">Biografía / Presentación</label>
+                    <textarea
+                      rows={4}
+                      value={personalForm.bio}
+                      onChange={(e) => setPersonalForm({ ...personalForm, bio: e.target.value })}
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Correo Electrónico</label>
+                      <input
+                        type="email"
+                        value={personalForm.email}
+                        onChange={(e) => setPersonalForm({ ...personalForm, email: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Teléfono / WhatsApp</label>
+                      <input
+                        type="text"
+                        value={personalForm.phone}
+                        onChange={(e) => setPersonalForm({ ...personalForm, phone: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Usuario GitHub</label>
+                      <input
+                        type="text"
+                        value={personalForm.githubUsername}
+                        onChange={(e) => setPersonalForm({ ...personalForm, githubUsername: e.target.value, github: `https://github.com/${e.target.value}` })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Enlace a LinkedIn</label>
+                      <input
+                        type="url"
+                        value={personalForm.linkedin}
+                        onChange={(e) => setPersonalForm({ ...personalForm, linkedin: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-3">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent bg-accent-hover text-xs font-semibold text-white shadow-md cursor-pointer"
+                    >
+                      <Save className="h-4 w-4" />
+                      <span>Guardar Datos Personales</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* PESTAÑA 3: PROYECTOS & FOTOS */}
+              {activeTab === 'projects' && (
+                <div>
+                  {projectSubView === 'list' ? (
+                    <div className="space-y-4 text-left">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-zinc-400 font-light">Proyectos actualmente en el portfolio:</p>
+                        <button
+                          onClick={handleOpenNewProject}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-accent bg-accent-hover text-xs font-semibold text-white shadow-md cursor-pointer"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          <span>Agregar Proyecto</span>
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-3">
+                        {projects.map((p) => (
+                          <div
+                            key={p.id}
+                            className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="h-12 w-12 rounded-xl border border-zinc-800 bg-black overflow-hidden flex items-center justify-center shrink-0">
+                                {p.image ? (
+                                  <img src={p.image} alt={p.title} className="h-full w-full object-cover" />
+                                ) : (
+                                  <ImageIcon className="h-5 w-5 text-accent opacity-50" />
+                                )}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-sm font-bold text-white">{p.title}</h4>
+                                  {p.featured && (
+                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-accent-light text-accent border border-accent">
+                                      ★ Insignia
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400">
+                                    {p.status}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-zinc-400 line-clamp-1">{p.shortDescription}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-center">
+                              <button
+                                onClick={() => handleEditProjectClick(p)}
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-accent-light border border-accent text-xs font-medium text-accent hover:bg-accent hover:text-white transition-colors cursor-pointer"
+                              >
+                                <Edit2 className="h-3 w-3" />
+                                <span>Editar</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm(`¿Eliminar ${p.title}?`)) {
+                                    deleteProject(p.id);
+                                    notify('Proyecto eliminado');
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-red-400 hover:border-red-500/40 cursor-pointer"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Formulario de Proyecto */
+                    <form onSubmit={handleProjectSubmit} className="space-y-4 text-left">
+                      <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                        <button
+                          type="button"
+                          onClick={() => setProjectSubView('list')}
+                          className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-white cursor-pointer"
+                        >
+                          <ArrowLeft className="h-3.5 w-3.5" />
+                          <span>Volver al listado</span>
+                        </button>
+                        <span className="text-xs font-mono font-semibold text-accent">
+                          {editingProjectId ? 'Modificando Proyecto' : 'Nuevo Proyecto'}
+                        </span>
+                      </div>
+
+                      {/* Imagen */}
+                      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
+                        <label className="block text-xs font-mono uppercase tracking-wider text-zinc-400 mb-2">
+                          Foto o Captura del Proyecto
+                        </label>
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                          <div className="h-24 w-36 rounded-xl border border-zinc-800 bg-black flex items-center justify-center overflow-hidden shrink-0">
+                            {projectForm.image ? (
+                              <img src={projectForm.image} alt="Preview" className="h-full w-full object-cover" />
                             ) : (
-                              <ImageIcon className="h-6 w-6 text-blue-400/50" />
+                              <span className="text-[10px] font-mono text-zinc-600">Sin foto</span>
                             )}
                           </div>
-
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="text-sm font-bold text-white">{proj.title}</h4>
-                              {proj.featured && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40">
-                                  <Star className="h-2.5 w-2.5 fill-blue-400 text-blue-400" />
-                                  Insignia
-                                </span>
-                              )}
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-400">
-                                {proj.status}
-                              </span>
-                            </div>
-                            <p className="text-xs text-zinc-400 mt-0.5 font-light line-clamp-1">
-                              {proj.shortDescription || proj.tagline}
-                            </p>
+                          <div className="flex-1 space-y-2 w-full">
+                            <input
+                              type="file"
+                              ref={fileInputRef}
+                              onChange={handleImageUpload}
+                              accept="image/*"
+                              className="hidden"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-xs font-semibold text-white shadow-md cursor-pointer"
+                            >
+                              <Upload className="h-3.5 w-3.5" />
+                              <span>Subir foto desde PC</span>
+                            </button>
+                            {projectForm.image && (
+                              <button
+                                type="button"
+                                onClick={() => setProjectForm(prev => ({ ...prev, image: null }))}
+                                className="ml-2 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 text-xs text-red-400 cursor-pointer"
+                              >
+                                Quitar foto
+                              </button>
+                            )}
                           </div>
                         </div>
+                      </div>
 
-                        {/* Botones de acción del proyecto */}
-                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                          <button
-                            onClick={() => handleEditClick(proj)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/15 border border-blue-500/30 text-xs font-medium text-blue-300 hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
-                          >
-                            <Edit2 className="h-3.5 w-3.5" />
-                            <span>Editar</span>
-                          </button>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-mono text-zinc-400 mb-1">Título *</label>
+                          <input
+                            type="text"
+                            required
+                            value={projectForm.title}
+                            onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                          />
+                        </div>
 
-                          <button
-                            onClick={() => handleDelete(proj.id, proj.title)}
-                            className="p-1.5 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 hover:border-red-500/40 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-                            title="Eliminar proyecto"
+                        <div>
+                          <label className="block text-xs font-mono text-zinc-400 mb-1">Categoría</label>
+                          <input
+                            type="text"
+                            value={projectForm.category}
+                            onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono text-zinc-400 mb-1">Subtítulo / Tagline</label>
+                        <input
+                          type="text"
+                          value={projectForm.tagline}
+                          onChange={(e) => setProjectForm({ ...projectForm, tagline: e.target.value })}
+                          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono text-zinc-400 mb-1">Descripción Breve</label>
+                        <textarea
+                          rows={2}
+                          value={projectForm.shortDescription}
+                          onChange={(e) => setProjectForm({ ...projectForm, shortDescription: e.target.value })}
+                          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono text-zinc-400 mb-1">Descripción Detallada (al expandir)</label>
+                        <textarea
+                          rows={3}
+                          value={projectForm.detailedDescription}
+                          onChange={(e) => setProjectForm({ ...projectForm, detailedDescription: e.target.value })}
+                          className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-mono text-zinc-400 mb-1">Tecnologías (separadas por coma)</label>
+                          <input
+                            type="text"
+                            value={projectForm.techStack}
+                            onChange={(e) => setProjectForm({ ...projectForm, techStack: e.target.value })}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-mono text-zinc-400 mb-1">Estado</label>
+                          <select
+                            value={projectForm.status}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              let t = 'production';
+                              if (val === 'Beta') t = 'beta';
+                              if (val === 'Académico') t = 'academic';
+                              if (val === 'Completado') t = 'completed';
+                              setProjectForm({ ...projectForm, status: val, statusType: t });
+                            }}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                            <option value="En Producción">En Producción</option>
+                            <option value="Completado">Completado</option>
+                            <option value="Beta">Beta</option>
+                            <option value="Académico">Académico</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-mono text-zinc-400 mb-1">Enlace a Demo / Web</label>
+                          <input
+                            type="url"
+                            value={projectForm.demoUrl}
+                            onChange={(e) => setProjectForm({ ...projectForm, demoUrl: e.target.value })}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-mono text-zinc-400 mb-1">Enlace a GitHub</label>
+                          <input
+                            type="url"
+                            value={projectForm.githubUrl}
+                            onChange={(e) => setProjectForm({ ...projectForm, githubUrl: e.target.value })}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <label className="flex items-center gap-2.5 p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={projectForm.featured}
+                          onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                          className="h-4 w-4 rounded accent-blue-600"
+                        />
+                        <span className="text-xs font-medium text-white">Destacar como Proyecto Insignia (Banner superior)</span>
+                      </label>
+
+                      <div className="flex items-center justify-end gap-3 pt-3">
+                        <button
+                          type="button"
+                          onClick={() => setProjectSubView('list')}
+                          className="px-4 py-2 rounded-xl border border-zinc-800 text-xs text-zinc-400 hover:text-white"
+                        >
+                          Cancelar
+                        </button>
+                        <button
+                          type="submit"
+                          className="inline-flex items-center gap-1.5 px-6 py-2 rounded-xl bg-accent text-xs font-semibold text-white shadow-md cursor-pointer"
+                        >
+                          <Save className="h-4 w-4" />
+                          <span>Guardar Proyecto</span>
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
+
+              {/* PESTAÑA 4: HABILIDADES (SKILLS) */}
+              {activeTab === 'skills' && (
+                <div className="space-y-6 text-left">
+                  {/* Formulario agregar skill */}
+                  <form onSubmit={handleAddSkill} className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/50 flex flex-col sm:flex-row items-center gap-3">
+                    <select
+                      value={newSkillCategory}
+                      onChange={(e) => setNewSkillCategory(e.target.value)}
+                      className="w-full sm:w-auto rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                    >
+                      <option value="frontend">Frontend & UI</option>
+                      <option value="backend">Backend & APIs</option>
+                      <option value="databases">Bases de Datos</option>
+                      <option value="toolsAndMethods">Herramientas & Entorno</option>
+                    </select>
+
+                    <input
+                      type="text"
+                      placeholder="Nueva tecnología (ej: Next.js, Docker, NestJS)"
+                      value={newSkillName}
+                      onChange={(e) => setNewSkillName(e.target.value)}
+                      className="w-full sm:flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-accent focus:outline-none font-mono"
+                    />
+
+                    <button
+                      type="submit"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-xs font-semibold text-white shadow-md cursor-pointer"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>Agregar</span>
+                    </button>
+                  </form>
+
+                  {/* Listado de habilidades por categoría */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { key: 'frontend', title: 'Frontend & UI' },
+                      { key: 'backend', title: 'Backend & APIs' },
+                      { key: 'databases', title: 'Bases de Datos' },
+                      { key: 'toolsAndMethods', title: 'Herramientas & Entorno' }
+                    ].map(cat => (
+                      <div key={cat.key} className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
+                        <h4 className="text-xs font-mono font-bold text-accent uppercase tracking-wider mb-3">
+                          {cat.title} ({(skills[cat.key] || []).length})
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {(skills[cat.key] || []).map((sk, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-mono text-zinc-300"
+                            >
+                              <span>{sk.name}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSkill(cat.key, idx)}
+                                className="text-zinc-500 hover:text-red-400 p-0.5 cursor-pointer"
+                                title="Eliminar"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </span>
+                          ))}
                         </div>
                       </div>
                     ))}
@@ -405,295 +981,166 @@ export default function AdminModal({ isOpen, onClose }) {
                 </div>
               )}
 
-              {/* VISTA 2: FORMULARIO CREAR / EDITAR */}
-              {activeView === 'form' && (
-                <form onSubmit={handleFormSubmit} className="pt-4 space-y-5">
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-                    <button
-                      type="button"
-                      onClick={() => setActiveView('list')}
-                      className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white cursor-pointer"
-                    >
-                      <ArrowLeft className="h-3.5 w-3.5" />
-                      <span>Volver al listado</span>
-                    </button>
-                    <span className="text-xs font-mono font-semibold text-blue-400">
-                      {editingId ? 'Editando Proyecto' : 'Creando Nuevo Proyecto'}
-                    </span>
-                  </div>
-
-                  {/* Subir Imagen */}
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
-                    <label className="block text-xs font-mono uppercase tracking-wider text-zinc-400 mb-2">
-                      Imagen del Proyecto
-                    </label>
-
-                    <div className="flex flex-col sm:flex-row items-center gap-4">
-                      {/* Preview de la imagen */}
-                      <div className="h-28 w-44 rounded-xl border border-zinc-800 bg-black flex items-center justify-center overflow-hidden shrink-0">
-                        {formData.image ? (
-                          <img src={formData.image} alt="Preview" className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="text-center p-2 text-zinc-600">
-                            <ImageIcon className="h-6 w-6 mx-auto mb-1 opacity-50" />
-                            <span className="text-[10px] font-mono">Sin imagen</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex-1 space-y-2 w-full">
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleImageUpload}
-                          accept="image/*"
-                          className="hidden"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500 transition-colors cursor-pointer"
-                        >
-                          <Upload className="h-3.5 w-3.5" />
-                          <span>Subir desde mi computadora</span>
-                        </button>
-
-                        {formData.image && (
-                          <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, image: null }))}
-                            className="ml-2 inline-flex items-center gap-1 rounded-xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs font-medium text-red-400 hover:bg-zinc-800 cursor-pointer"
-                          >
-                            Quitar imagen
-                          </button>
-                        )}
-                        <p className="text-[11px] text-zinc-500 font-light">
-                          Selecciona una captura o mockup de tu proyecto (.png, .jpg o .webp).
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Campos básicos */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Título del Proyecto *</label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.title}
-                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        placeholder="Ej: Plataforma E-Commerce"
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Categoría</label>
-                      <input
-                        type="text"
-                        value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        placeholder="Ej: Full Stack / Backend / Mobile"
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
+              {/* PESTAÑA 5: EXPERIENCIA & EDUCACIÓN */}
+              {activeTab === 'experience' && (
+                <div className="space-y-6 text-left">
+                  {/* Experiencias */}
                   <div>
-                    <label className="block text-xs font-mono text-zinc-400 mb-1">Tagline o Subtítulo corto</label>
-                    <input
-                      type="text"
-                      value={formData.tagline}
-                      onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                      placeholder="Ej: Sistema web con sincronización de inventario en tiempo real"
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-mono text-zinc-400 mb-1">Descripción Breve (se muestra en la tarjeta)</label>
-                    <textarea
-                      rows={2}
-                      value={formData.shortDescription}
-                      onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-                      placeholder="Resumen conciso del objetivo y resultado del proyecto..."
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-mono text-zinc-400 mb-1">Descripción Detallada (al expandir el acordeón)</label>
-                    <textarea
-                      rows={3}
-                      value={formData.detailedDescription}
-                      onChange={(e) => setFormData({ ...formData, detailedDescription: e.target.value })}
-                      placeholder="Explica la arquitectura, cómo lo construiste, desafíos y resultados..."
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Tecnologías (separadas por coma)</label>
-                      <input
-                        type="text"
-                        value={formData.techStack}
-                        onChange={(e) => setFormData({ ...formData, techStack: e.target.value })}
-                        placeholder="React, Node.js, Express, PostgreSQL"
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none font-mono"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Estado</label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          let type = 'production';
-                          if (val === 'Beta') type = 'beta';
-                          if (val === 'Académico') type = 'academic';
-                          if (val === 'Completado') type = 'completed';
-                          setFormData({ ...formData, status: val, statusType: type });
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                        <Briefcase className="h-4 w-4 text-accent" />
+                        Experiencias Laborales & Emprendimientos
+                      </h4>
+                      <button
+                        onClick={() => {
+                          const role = prompt('Puesto / Rol (ej: Full Stack Developer):');
+                          if (!role) return;
+                          const company = prompt('Empresa o Proyecto (ej: Solem / Freelance):');
+                          const period = prompt('Período (ej: 2025 - Presente):', '2025 - Presente');
+                          const description = prompt('Descripción de tareas:');
+                          addExperience({ role, company, period, description: description || '', badge: 'Nuevo' });
+                          notify('Experiencia agregada');
                         }}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-accent text-xs font-semibold text-white cursor-pointer"
                       >
-                        <option value="En Producción">En Producción</option>
-                        <option value="Completado">Completado</option>
-                        <option value="Beta">Beta</option>
-                        <option value="Académico">Académico</option>
-                      </select>
+                        <Plus className="h-3 w-3" />
+                        <span>Añadir</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {experience.map((exp, idx) => (
+                        <div key={idx} className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-bold text-white">{exp.role} <span className="text-zinc-500 font-normal">en {exp.company}</span></p>
+                            <p className="text-[11px] font-mono text-accent">{exp.period}</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (confirm(`¿Eliminar ${exp.role}?`)) {
+                                deleteExperienceItem(idx);
+                                notify('Experiencia eliminada');
+                              }
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-red-400 cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-mono text-zinc-400 mb-1">Puntos Destacados (uno por línea)</label>
-                    <textarea
-                      rows={3}
-                      value={formData.highlights}
-                      onChange={(e) => setFormData({ ...formData, highlights: e.target.value })}
-                      placeholder="Punto 1&#10;Punto 2&#10;Punto 3"
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none font-mono"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Enlace a Demo / Sitio Web</label>
-                      <input
-                        type="url"
-                        value={formData.demoUrl}
-                        onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
-                        placeholder="https://..."
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                      />
+                  {/* Educación */}
+                  <div className="pt-4 border-t border-zinc-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-bold text-white">Educación Formal</h4>
+                      <button
+                        onClick={() => {
+                          const title = prompt('Título / Carrera (ej: Tecnicatura en Analista en Sistemas):');
+                          if (!title) return;
+                          const institution = prompt('Institución (ej: IES21):');
+                          const period = prompt('Período (ej: 2023 - 2026):', '2023 - 2026');
+                          const details = prompt('Detalles:');
+                          addEducation({ title, institution, period, details: details || '' });
+                          notify('Educación agregada');
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-accent text-xs font-semibold text-white cursor-pointer"
+                      >
+                        <Plus className="h-3 w-3" />
+                        <span>Añadir</span>
+                      </button>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Enlace a Repositorio GitHub</label>
-                      <input
-                        type="url"
-                        value={formData.githubUrl}
-                        onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                        placeholder="https://github.com/..."
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                      />
+                    <div className="space-y-2.5">
+                      {education.map((edu, idx) => (
+                        <div key={idx} className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-bold text-white">{edu.title}</p>
+                            <p className="text-[11px] font-mono text-accent">{edu.institution} ({edu.period})</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (confirm(`¿Eliminar ${edu.title}?`)) {
+                                deleteEducationItem(idx);
+                                notify('Educación eliminada');
+                              }
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-red-400 cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   </div>
-
-                  {/* Checkbox Proyecto Insignia */}
-                  <label className="flex items-center gap-2.5 p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.featured}
-                      onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                      className="h-4 w-4 rounded accent-blue-600 cursor-pointer"
-                    />
-                    <div>
-                      <p className="text-xs font-semibold text-white">Marcar como Proyecto Insignia (Destacado)</p>
-                      <p className="text-[11px] text-zinc-400 font-light">Se mostrará en el banner principal superior de la sección de proyectos.</p>
-                    </div>
-                  </label>
-
-                  {/* Botones de acción del formulario */}
-                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800">
-                    <button
-                      type="button"
-                      onClick={() => setActiveView('list')}
-                      className="px-4 py-2.5 rounded-xl border border-zinc-800 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 cursor-pointer"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-blue-600 text-xs font-semibold text-white hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/25 cursor-pointer"
-                    >
-                      <Save className="h-4 w-4" />
-                      <span>{editingId ? 'Guardar Cambios' : 'Publicar Proyecto'}</span>
-                    </button>
-                  </div>
-                </form>
+                </div>
               )}
 
-              {/* VISTA 3: SEGURIDAD (CAMBIO DE CONTRASEÑA) */}
-              {activeView === 'settings' && (
-                <div className="pt-6 max-w-md mx-auto space-y-4">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <Key className="h-4 w-4 text-blue-400" />
-                    Cambiar Contraseña de Administrador
-                  </h3>
-                  <p className="text-xs text-zinc-400 font-light">
-                    Actualiza la clave para ingresar a este panel de administración.
-                  </p>
-
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      setPwdMsg('');
-                      const res = changePassword(currentPwd, newPwd);
-                      setPwdMsg(res.message);
-                      if (res.success) {
-                        setCurrentPwd('');
-                        setNewPwd('');
-                        showNotification('Contraseña cambiada');
-                      }
-                    }}
-                    className="space-y-3"
-                  >
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Contraseña Actual</label>
+              {/* PESTAÑA 6: SEGURIDAD Y RESTAURAR */}
+              {activeTab === 'security' && (
+                <div className="space-y-6 text-left max-w-md mx-auto">
+                  <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 space-y-3">
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Key className="h-4 w-4 text-accent" />
+                      Modificar Contraseña de Administrador
+                    </h4>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        setPwdMsg('');
+                        const res = changePassword(currentPwd, newPwd);
+                        setPwdMsg(res.message);
+                        if (res.success) {
+                          setCurrentPwd('');
+                          setNewPwd('');
+                          notify('Contraseña cambiada');
+                        }
+                      }}
+                      className="space-y-3"
+                    >
                       <input
                         type="password"
-                        required
+                        placeholder="Contraseña actual"
                         value={currentPwd}
                         onChange={(e) => setCurrentPwd(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
                       />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-mono text-zinc-400 mb-1">Nueva Contraseña</label>
                       <input
                         type="password"
-                        required
+                        placeholder="Nueva contraseña"
                         value={newPwd}
                         onChange={(e) => setNewPwd(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-blue-500 focus:outline-none"
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
                       />
-                    </div>
+                      {pwdMsg && <p className="text-xs text-accent font-mono">{pwdMsg}</p>}
+                      <button
+                        type="submit"
+                        className="w-full py-2.5 rounded-xl bg-accent text-xs font-semibold text-white shadow-md cursor-pointer"
+                      >
+                        Actualizar Clave
+                      </button>
+                    </form>
+                  </div>
 
-                    {pwdMsg && (
-                      <p className="text-xs text-blue-400 font-mono">{pwdMsg}</p>
-                    )}
-
+                  <div className="p-5 rounded-2xl border border-red-500/30 bg-red-950/20 text-center space-y-2">
+                    <h4 className="text-xs font-bold text-red-300">Restaurar Todo de Fábrica</h4>
+                    <p className="text-[11px] text-zinc-400 font-light">
+                      Restaura todos los proyectos, habilidades y textos a sus valores originales.
+                    </p>
                     <button
-                      type="submit"
-                      className="w-full rounded-xl bg-blue-600 py-2.5 text-xs font-semibold text-white hover:bg-blue-500 transition-colors cursor-pointer"
+                      onClick={() => {
+                        if (confirm('¿Estás seguro de que deseas restaurar todo a los valores por defecto?')) {
+                          resetAllToDefault();
+                          notify('Todo restaurado por defecto');
+                        }
+                      }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600/30 border border-red-500/40 text-red-300 hover:bg-red-600 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                     >
-                      Actualizar Contraseña
+                      <RefreshCw className="h-3 w-3" />
+                      <span>Restaurar Valores por Defecto</span>
                     </button>
-                  </form>
+                  </div>
                 </div>
               )}
 

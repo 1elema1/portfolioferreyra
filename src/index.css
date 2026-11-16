@@ -1,89 +1,128 @@
 @import "tailwindcss";
 
+:root {
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-light: rgba(59, 130, 246, 0.15);
+  --color-accent-border: rgba(59, 130, 246, 0.35);
+  --color-accent-glow: rgba(59, 130, 246, 0.25);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
 
+  /* Dark mode default */
+  html.dark body {
+    background-color: #050507;
+    color: #f4f4f5;
+  }
+
+  /* Light mode */
+  html.light body {
+    background-color: #fafafa;
+    color: #09090b;
+  }
+
   body {
-    @apply bg-black text-white font-sans antialiased selection:bg-blue-600/30 selection:text-blue-200;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
-/* Glassmorphism blue-dark utilities */
-.glass-panel {
-  background: rgba(10, 15, 30, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(59, 130, 246, 0.15);
+/* Dynamic Accent Utilities */
+.text-accent {
+  color: var(--color-accent) !important;
 }
 
-.glass-panel-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+.bg-accent {
+  background-color: var(--color-accent) !important;
 }
 
-.glass-panel-hover:hover {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(96, 165, 250, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(37, 99, 235, 0.25);
+.bg-accent-hover:hover {
+  background-color: var(--color-accent-hover) !important;
 }
 
-/* Background grid pattern with subtle blue tint */
-.bg-grid-pattern {
-  background-size: 40px 40px;
+.bg-accent-light {
+  background-color: var(--color-accent-light) !important;
+}
+
+.border-accent {
+  border-color: var(--color-accent-border) !important;
+}
+
+.glow-accent {
+  box-shadow: 0 0 35px -5px var(--color-accent-glow) !important;
+}
+
+/* Glassmorphism theme responsive */
+html.dark .glass-card {
+  background: rgba(18, 18, 22, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+html.dark .glass-card:hover {
+  background: rgba(24, 24, 30, 0.9);
+  border-color: var(--color-accent-border);
+}
+
+html.light .glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+
+html.light .glass-card:hover {
+  background: #ffffff;
+  border-color: var(--color-accent-border);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.08);
+}
+
+/* Background grid pattern */
+html.dark .bg-grid-tech {
+  background-size: 36px 36px;
   background-image: 
-    linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
 
-/* Animations */
-@keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.05);
-  }
+html.light .bg-grid-tech {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 6s ease-in-out infinite;
-}
-
-/* Glitch Title Effect in Blue & White */
-@keyframes glitchTextBlue {
+/* Glitch Title Hover */
+@keyframes glitchText {
   0% {
-    text-shadow: 0.05em 0 0 rgba(59, 130, 246, 0.8), -0.05em -0.025em 0 rgba(255, 255, 255, 0.8);
+    text-shadow: 0.04em 0 0 var(--color-accent), -0.04em -0.02em 0 rgba(255, 255, 255, 0.8);
   }
-  14% {
-    text-shadow: 0.05em 0 0 rgba(59, 130, 246, 0.8), -0.05em -0.025em 0 rgba(255, 255, 255, 0.8);
+  20% {
+    text-shadow: -0.04em 0 0 var(--color-accent), 0.04em 0.02em 0 rgba(255, 255, 255, 0.8);
   }
-  15% {
-    text-shadow: -0.05em -0.025em 0 rgba(59, 130, 246, 0.8), 0.025em 0.025em 0 rgba(255, 255, 255, 0.8);
+  40% {
+    text-shadow: 0.02em 0.04em 0 var(--color-accent), -0.02em -0.04em 0 rgba(255, 255, 255, 0.8);
   }
-  49% {
-    text-shadow: -0.05em -0.025em 0 rgba(59, 130, 246, 0.8), 0.025em 0.025em 0 rgba(255, 255, 255, 0.8);
-  }
-  50% {
-    text-shadow: 0.025em 0.05em 0 rgba(59, 130, 246, 0.8), 0.05em 0 0 rgba(255, 255, 255, 0.8);
-  }
-  99% {
-    text-shadow: 0.025em 0.05em 0 rgba(59, 130, 246, 0.8), 0.05em 0 0 rgba(255, 255, 255, 0.8);
+  60% {
+    text-shadow: -0.03em 0 0 var(--color-accent), 0.03em 0 0 rgba(255, 255, 255, 0.8);
   }
   100% {
-    text-shadow: -0.025em 0 0 rgba(59, 130, 246, 0.8), -0.025em -0.025em 0 rgba(255, 255, 255, 0.8);
+    text-shadow: 0.04em 0 0 var(--color-accent), -0.04em -0.02em 0 rgba(255, 255, 255, 0.8);
   }
 }
 
 .glitch-hover:hover {
-  animation: glitchTextBlue 0.6s infinite;
+  animation: glitchText 0.5s infinite;
 }
 
-/* Reduced motion accessibility */
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

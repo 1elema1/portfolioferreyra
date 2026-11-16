@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PortfolioProvider } from './context/PortfolioContext';
+import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -12,21 +12,24 @@ import AdminModal from './components/AdminModal';
 
 function PortfolioApp() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const { sections } = usePortfolio();
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col selection:bg-blue-600/30 selection:text-blue-200">
+    <div className="min-h-screen flex flex-col transition-colors duration-300">
       <Navbar onOpenAdmin={() => setIsAdminModalOpen(true)} />
+      
       <main className="flex-1">
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Experience />
-        <Contact />
+        {sections.hero && <Hero />}
+        {sections.about && <About />}
+        {sections.skills && <Skills />}
+        {sections.projects && <Projects />}
+        {sections.experience && <Experience />}
+        {sections.contact && <Contact />}
       </main>
+
       <Footer onOpenAdmin={() => setIsAdminModalOpen(true)} />
       
-      {/* Modal de Administración Privado */}
+      {/* Modal de Administración Privado Completo */}
       <AdminModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}

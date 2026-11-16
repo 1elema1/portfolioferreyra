@@ -1,64 +1,233 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { projectsData as defaultProjects } from '../data/portfolioData';
+import { 
+  personalData as defaultPersonal, 
+  skillsData as defaultSkills, 
+  projectsData as defaultProjects, 
+  experienceData as defaultExperience, 
+  educationData as defaultEducation 
+} from '../data/portfolioData';
 
 const PortfolioContext = createContext();
 
-const STORAGE_KEY = 'portfolio_ferreyra_projects';
-const AUTH_KEY = 'portfolio_ferreyra_auth';
-const PWD_KEY = 'portfolio_ferreyra_pwd';
+const STORAGE_KEYS = {
+  PERSONAL: 'portfolio_ferreyra_personal_v4',
+  SKILLS: 'portfolio_ferreyra_skills_v4',
+  PROJECTS: 'portfolio_ferreyra_projects_v4',
+  EXPERIENCE: 'portfolio_ferreyra_experience_v4',
+  EDUCATION: 'portfolio_ferreyra_education_v4',
+  SECTIONS: 'portfolio_ferreyra_sections_v4',
+  THEME_MODE: 'portfolio_ferreyra_theme_mode_v4',
+  ACCENT_COLOR: 'portfolio_ferreyra_accent_color_v4',
+  AUTH: 'portfolio_ferreyra_auth_v4',
+  PWD: 'portfolio_ferreyra_pwd_v4'
+};
+
 const DEFAULT_PASSWORD = 'emanuel2026';
 
+export const ACCENT_PALETTES = {
+  blue: {
+    name: 'Azul Eléctrico',
+    hex: '#3b82f6',
+    hover: '#2563eb',
+    light: 'rgba(59, 130, 246, 0.15)',
+    border: 'rgba(59, 130, 246, 0.35)',
+    glow: 'rgba(59, 130, 246, 0.25)'
+  },
+  cyan: {
+    name: 'Cyan Neón',
+    hex: '#06b6d4',
+    hover: '#0891b2',
+    light: 'rgba(6, 182, 212, 0.15)',
+    border: 'rgba(6, 182, 212, 0.35)',
+    glow: 'rgba(6, 182, 212, 0.25)'
+  },
+  violet: {
+    name: 'Violeta / Púrpura',
+    hex: '#8b5cf6',
+    hover: '#7c3aed',
+    light: 'rgba(139, 92, 246, 0.15)',
+    border: 'rgba(139, 92, 246, 0.35)',
+    glow: 'rgba(139, 92, 246, 0.25)'
+  },
+  emerald: {
+    name: 'Esmeralda Mint',
+    hex: '#10b981',
+    hover: '#059669',
+    light: 'rgba(16, 185, 129, 0.15)',
+    border: 'rgba(16, 185, 129, 0.35)',
+    glow: 'rgba(16, 185, 129, 0.25)'
+  },
+  amber: {
+    name: 'Ámbar Dorado',
+    hex: '#f59e0b',
+    hover: '#d97706',
+    light: 'rgba(245, 158, 11, 0.15)',
+    border: 'rgba(245, 158, 11, 0.35)',
+    glow: 'rgba(245, 158, 11, 0.25)'
+  },
+  rose: {
+    name: 'Rosa Magenta',
+    hex: '#ec4899',
+    hover: '#db2777',
+    light: 'rgba(236, 72, 153, 0.15)',
+    border: 'rgba(236, 72, 153, 0.35)',
+    glow: 'rgba(236, 72, 153, 0.25)'
+  }
+};
+
+const DEFAULT_SECTIONS = {
+  hero: true,
+  about: true,
+  skills: true,
+  projects: true,
+  experience: true,
+  contact: true
+};
+
 export function PortfolioProvider({ children }) {
-  // Proyectos sincronizados con LocalStorage
+  // 1. Tema Claro / Oscuro (público)
+  const [themeMode, setThemeMode] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.THEME_MODE);
+      if (saved) return saved;
+    } catch (e) {}
+    return 'dark';
+  });
+
+  // 2. Color de acento
+  const [accentKey, setAccentKey] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.ACCENT_COLOR);
+      if (saved && ACCENT_PALETTES[saved]) return saved;
+    } catch (e) {}
+    return 'blue';
+  });
+
+  // 3. Control de visibilidad de secciones
+  const [sections, setSections] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SECTIONS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return DEFAULT_SECTIONS;
+  });
+
+  // 4. Datos Personales
+  const [personal, setPersonal] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PERSONAL);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return defaultPersonal;
+  });
+
+  // 5. Habilidades
+  const [skills, setSkills] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SKILLS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return defaultSkills;
+  });
+
+  // 6. Proyectos
   const [projects, setProjects] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.error('Error cargando proyectos de localStorage', e);
-    }
+      const saved = localStorage.getItem(STORAGE_KEYS.PROJECTS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
     return defaultProjects;
   });
 
-  // Estado de autenticación del administrador
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
-    return sessionStorage.getItem(AUTH_KEY) === 'true';
+  // 7. Experiencia
+  const [experience, setExperience] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.EXPERIENCE);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return defaultExperience;
   });
 
-  // Guardar proyectos en LocalStorage cada vez que cambian
+  // 8. Educación
+  const [education, setEducation] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.EDUCATION);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return defaultEducation;
+  });
+
+  // 9. Autenticación Administrador
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return sessionStorage.getItem(STORAGE_KEYS.AUTH) === 'true';
+  });
+
+  // Aplicar clases de tema y variables CSS dinámicas de color en el DOM
+  useEffect(() => {
+    const root = document.documentElement;
+    // Dark/Light classes
+    if (themeMode === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+
+    // Dynamic accent CSS variables
+    const palette = ACCENT_PALETTES[accentKey] || ACCENT_PALETTES.blue;
+    root.style.setProperty('--color-accent', palette.hex);
+    root.style.setProperty('--color-accent-hover', palette.hover);
+    root.style.setProperty('--color-accent-light', palette.light);
+    root.style.setProperty('--color-accent-border', palette.border);
+    root.style.setProperty('--color-accent-glow', palette.glow);
+  }, [themeMode, accentKey]);
+
+  // Persistir en LocalStorage
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+      localStorage.setItem(STORAGE_KEYS.THEME_MODE, themeMode);
+      localStorage.setItem(STORAGE_KEYS.ACCENT_COLOR, accentKey);
+      localStorage.setItem(STORAGE_KEYS.SECTIONS, JSON.stringify(sections));
+      localStorage.setItem(STORAGE_KEYS.PERSONAL, JSON.stringify(personal));
+      localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(skills));
+      localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(projects));
+      localStorage.setItem(STORAGE_KEYS.EXPERIENCE, JSON.stringify(experience));
+      localStorage.setItem(STORAGE_KEYS.EDUCATION, JSON.stringify(education));
     } catch (e) {
-      console.error('Error guardando proyectos en localStorage', e);
+      console.error('Error guardando en localStorage', e);
     }
-  }, [projects]);
+  }, [themeMode, accentKey, sections, personal, skills, projects, experience, education]);
 
-  // Obtener contraseña administrativa
-  const getAdminPassword = () => {
-    return localStorage.getItem(PWD_KEY) || DEFAULT_PASSWORD;
+  // Toggle tema público
+  const toggleTheme = () => {
+    setThemeMode(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  // Iniciar sesión
+  // Toggle visibilidad de sección
+  const toggleSection = (sectionKey) => {
+    setSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
+  };
+
+  // Auth methods
+  const getAdminPassword = () => {
+    return localStorage.getItem(STORAGE_KEYS.PWD) || DEFAULT_PASSWORD;
+  };
+
   const login = (password) => {
-    const currentPassword = getAdminPassword();
-    if (password === currentPassword) {
+    if (password === getAdminPassword()) {
       setIsAdminAuthenticated(true);
-      sessionStorage.setItem(AUTH_KEY, 'true');
+      sessionStorage.setItem(STORAGE_KEYS.AUTH, 'true');
       return { success: true };
     }
     return { success: false, message: 'Contraseña incorrecta' };
   };
 
-  // Cerrar sesión
   const logout = () => {
     setIsAdminAuthenticated(false);
-    sessionStorage.removeItem(AUTH_KEY);
+    sessionStorage.removeItem(STORAGE_KEYS.AUTH);
   };
 
-  // Cambiar contraseña
   const changePassword = (currentPassword, newPassword) => {
     if (currentPassword !== getAdminPassword()) {
       return { success: false, message: 'La contraseña actual no es válida.' };
@@ -66,30 +235,25 @@ export function PortfolioProvider({ children }) {
     if (!newPassword || newPassword.length < 4) {
       return { success: false, message: 'La nueva contraseña debe tener al menos 4 caracteres.' };
     }
-    localStorage.setItem(PWD_KEY, newPassword);
+    localStorage.setItem(STORAGE_KEYS.PWD, newPassword);
     return { success: true, message: 'Contraseña actualizada con éxito.' };
   };
 
-  // Agregar nuevo proyecto
+  // Proyectos
   const addProject = (newProject) => {
     const id = `project-${Date.now()}`;
     const projectWithId = { ...newProject, id };
-    
-    // Si este nuevo proyecto está marcado como 'featured', desmarcar los demás
     let updatedProjects = projects;
     if (projectWithId.featured) {
       updatedProjects = updatedProjects.map(p => ({ ...p, featured: false }));
     }
-
     setProjects([projectWithId, ...updatedProjects]);
     return projectWithId;
   };
 
-  // Actualizar proyecto existente
   const updateProject = (id, updatedFields) => {
     setProjects(prev => {
       let updated = prev.map(p => p.id === id ? { ...p, ...updatedFields } : p);
-      // Si se marcó como featured, asegurar que sea el único
       if (updatedFields.featured) {
         updated = updated.map(p => p.id === id ? p : { ...p, featured: false });
       }
@@ -97,30 +261,92 @@ export function PortfolioProvider({ children }) {
     });
   };
 
-  // Eliminar proyecto
   const deleteProject = (id) => {
     setProjects(prev => prev.filter(p => p.id !== id));
   };
 
-  // Restaurar proyectos a los originales de portfolioData.js
-  const resetToDefault = () => {
+  // Datos personales
+  const updatePersonal = (fields) => {
+    setPersonal(prev => ({ ...prev, ...fields }));
+  };
+
+  // Habilidades
+  const updateSkillsCategory = (categoryKey, items) => {
+    setSkills(prev => ({ ...prev, [categoryKey]: items }));
+  };
+
+  // Experiencia
+  const addExperience = (item) => {
+    setExperience(prev => [item, ...prev]);
+  };
+
+  const updateExperienceItem = (index, item) => {
+    setExperience(prev => prev.map((exp, i) => i === index ? item : exp));
+  };
+
+  const deleteExperienceItem = (index) => {
+    setExperience(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Educación
+  const addEducation = (item) => {
+    setEducation(prev => [item, ...prev]);
+  };
+
+  const updateEducationItem = (index, item) => {
+    setEducation(prev => prev.map((edu, i) => i === index ? item : edu));
+  };
+
+  const deleteEducationItem = (index) => {
+    setEducation(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Restaurar todo a valores por defecto
+  const resetAllToDefault = () => {
+    setPersonal(defaultPersonal);
+    setSkills(defaultSkills);
     setProjects(defaultProjects);
-    localStorage.removeItem(STORAGE_KEY);
+    setExperience(defaultExperience);
+    setEducation(defaultEducation);
+    setSections(DEFAULT_SECTIONS);
+    setAccentKey('blue');
+    setThemeMode('dark');
+    Object.values(STORAGE_KEYS).forEach(k => {
+      if (k !== STORAGE_KEYS.PWD) localStorage.removeItem(k);
+    });
   };
 
   return (
     <PortfolioContext.Provider
       value={{
+        themeMode,
+        toggleTheme,
+        accentKey,
+        setAccentKey,
+        accentPalette: ACCENT_PALETTES[accentKey] || ACCENT_PALETTES.blue,
+        sections,
+        toggleSection,
+        personal,
+        updatePersonal,
+        skills,
+        updateSkillsCategory,
         projects,
-        isAdminAuthenticated,
-        login,
-        logout,
-        changePassword,
         addProject,
         updateProject,
         deleteProject,
-        resetToDefault,
-        defaultProjects
+        experience,
+        addExperience,
+        updateExperienceItem,
+        deleteExperienceItem,
+        education,
+        addEducation,
+        updateEducationItem,
+        deleteEducationItem,
+        resetAllToDefault,
+        isAdminAuthenticated,
+        login,
+        logout,
+        changePassword
       }}
     >
       {children}
