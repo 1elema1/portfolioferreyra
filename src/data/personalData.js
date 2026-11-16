@@ -21,6 +21,15 @@ export const personalData = {
   aboutSubtitle: "Acompaño cada proyecto en todas sus fases: desde la concepción de la idea y el modelado técnico hasta el código en producción.",
   aboutEducationIntro: "Soy estudiante de la Tecnicatura en Analista en Sistemas (IES21) con sólida base en programación, arquitectura de software y bases de datos.",
 
+  // Campos de la sección Contacto (¿Listo para crear algo increíble juntos?)
+  contactBadge: "Open to Work · Disponibilidad Inmediata",
+  contactTitle: "¿Listo para crear algo increíble juntos?",
+  contactSubtitle: "Estoy disponible para sumarme a equipos de desarrollo como Full Stack Developer o colaborar en soluciones tecnológicas. Mi bandeja de entrada está siempre abierta.",
+  contactButtonEmail: "Enviar Correo",
+  contactButtonWhatsapp: "WhatsApp Directo",
+  contactButtonCv: "Descargar CV",
+  whatsappMessage: "Hola Emanuel, vi tu portfolio y me gustaría contactarte.",
+
   languages: [
     { name: "Español", level: "Nativo" },
     { name: "Inglés", level: "A2" }

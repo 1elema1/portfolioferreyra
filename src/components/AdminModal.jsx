@@ -4,7 +4,7 @@ import {
   X, Lock, Unlock, Plus, Edit2, Trash2, Image as ImageIcon, 
   Upload, Star, Save, RefreshCw, Key, LogOut, CheckCircle2, AlertCircle, 
   ArrowLeft, Download, Palette, Layers, User, Code2, Briefcase, Sun, Moon, Eye, EyeOff,
-  Cloud
+  Cloud, MessageSquare
 } from 'lucide-react';
 
 export default function AdminModal({ isOpen, onClose }) {

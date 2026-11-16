@@ -23,15 +23,15 @@ export default function Contact() {
         {/* Badge status */}
         <div className="inline-flex items-center gap-2 rounded-full border border-accent bg-accent-light px-4 py-1.5 text-xs font-mono text-accent mb-6 shadow-2xs">
           <span className="h-2 w-2 rounded-full bg-accent animate-pulse"></span>
-          <span>{personal.availability || 'Open to Work · Disponibilidad Inmediata'}</span>
+          <span>{personal.contactBadge || personal.availability || 'Open to Work · Disponibilidad Inmediata'}</span>
         </div>
 
         <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">
-          ¿Listo para crear algo increíble juntos?
+          {personal.contactTitle || '¿Listo para crear algo increíble juntos?'}
         </h2>
 
         <p className="text-base sm:text-lg text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto mb-10 font-normal leading-relaxed">
-          Estoy disponible para sumarme a equipos de desarrollo como Full Stack Developer o colaborar en soluciones tecnológicas. Mi bandeja de entrada está siempre abierta.
+          {personal.contactSubtitle || 'Estoy disponible para sumarme a equipos de desarrollo como Full Stack Developer o colaborar en soluciones tecnológicas. Mi bandeja de entrada está siempre abierta.'}
         </p>
 
         {/* Action Buttons */}
@@ -41,17 +41,17 @@ export default function Contact() {
             className="group inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-white transition-all shadow-sm hover:opacity-95 active:scale-95"
           >
             <Mail className="h-4 w-4" />
-            <span>Enviar Correo</span>
+            <span>{personal.contactButtonEmail || 'Enviar Correo'}</span>
           </a>
 
           <a
-            href={`https://wa.me/549${personal.phoneRaw || '3512890844'}?text=Hola%20Emanuel,%20vi%20tu%20portfolio%20y%20me%20gustar%C3%ADa%20contactarte.`}
+            href={`https://wa.me/549${personal.phoneRaw || '3512890844'}?text=${encodeURIComponent(personal.whatsappMessage || 'Hola Emanuel, vi tu portfolio y me gustaría contactarte.')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-6 py-3.5 text-sm font-medium text-slate-800 dark:text-white transition-all hover:border-accent shadow-2xs active:scale-95"
           >
             <MessageSquare className="h-4 w-4 text-accent" />
-            <span>WhatsApp Directo</span>
+            <span>{personal.contactButtonWhatsapp || 'WhatsApp Directo'}</span>
           </a>
 
           <a
@@ -60,7 +60,7 @@ export default function Contact() {
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-900/60 px-5 py-3.5 text-sm font-medium text-slate-700 dark:text-zinc-300 transition-all hover:border-slate-300 dark:hover:border-zinc-700"
           >
             <Download className="h-4 w-4 text-slate-500 dark:text-zinc-400" />
-            <span>Descargar CV</span>
+            <span>{personal.contactButtonCv || 'Descargar CV'}</span>
           </a>
         </div>
 
