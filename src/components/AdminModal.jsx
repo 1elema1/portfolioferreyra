@@ -380,6 +380,18 @@ export default function AdminModal({ isOpen, onClose }) {
                 </button>
 
                 <button
+                  onClick={() => setActiveTab('about')}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-medium transition-all cursor-pointer ${
+                    activeTab === 'about' 
+                      ? 'bg-accent text-white font-semibold shadow-md' 
+                      : 'bg-zinc-900 text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                  <span>Sobre Mí & Pilares</span>
+                </button>
+
+                <button
                   onClick={() => {
                     setActiveTab('projects');
                     setProjectSubView('list');
@@ -747,12 +759,84 @@ export default function AdminModal({ isOpen, onClose }) {
                     </div>
                   </div>
 
-                  {/* Pilares Técnicos (Sobre mí) */}
-                  <div className="pt-3 border-t border-zinc-800/80">
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-mono text-zinc-300 font-semibold">
-                        Pilares Técnicos (Sección Sobre Mí)
-                      </label>
+                  <div className="pt-3">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent bg-accent-hover text-xs font-semibold text-white shadow-md cursor-pointer"
+                    >
+                      <Save className="h-4 w-4" />
+                      <span>Guardar Datos Personales</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* PESTAÑA: SOBRE MÍ & PILARES TÉCNICOS */}
+              {activeTab === 'about' && (
+                <form onSubmit={handlePersonalSubmit} className="space-y-6 text-left">
+                  {/* Encabezado de la Sección Sobre Mí */}
+                  <div className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-3">
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-accent"></span>
+                      Encabezado Principal de "Sobre Mí"
+                    </h4>
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Título Principal</label>
+                      <input
+                        type="text"
+                        placeholder="Ej: Desarrollo de Software End-to-End"
+                        value={personalForm.aboutTitle ?? ''}
+                        onChange={(e) => setPersonalForm({ ...personalForm, aboutTitle: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Bajada / Subtítulo</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Ej: Acompaño cada proyecto en todas sus fases..."
+                        value={personalForm.aboutSubtitle ?? ''}
+                        onChange={(e) => setPersonalForm({ ...personalForm, aboutSubtitle: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Cuadro de Perfil Profesional (Izquierda) */}
+                  <div className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-3">
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+                      <User className="h-3.5 w-3.5 text-accent" />
+                      Recuadro Izquierdo: Perfil Profesional
+                    </h4>
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Párrafo Introductorio / Formación</label>
+                      <textarea
+                        rows={2}
+                        placeholder="Ej: Soy estudiante de la Tecnicatura en Analista en Sistemas (IES21)..."
+                        value={personalForm.aboutEducationIntro ?? ''}
+                        onChange={(e) => setPersonalForm({ ...personalForm, aboutEducationIntro: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-mono text-zinc-400 mb-1">Texto de Enfoque / Biografía Detallada</label>
+                      <textarea
+                        rows={3}
+                        placeholder="Ej: Técnico Analista de Sistemas enfocado en el desarrollo end-to-end de software..."
+                        value={personalForm.bio ?? ''}
+                        onChange={(e) => setPersonalForm({ ...personalForm, bio: e.target.value })}
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Pilares Técnicos (Derecha) */}
+                  <div className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+                        <Layers className="h-3.5 w-3.5 text-accent" />
+                        Pilares Técnicos (Tarjetas de la Derecha)
+                      </h4>
                       <button
                         type="button"
                         onClick={() => {
@@ -762,15 +846,16 @@ export default function AdminModal({ isOpen, onClose }) {
                             pillars: [...current, { title: '', description: '' }]
                           });
                         }}
-                        className="inline-flex items-center gap-1 text-[11px] font-mono text-accent hover:underline cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent text-xs font-semibold text-white cursor-pointer shadow-sm"
                       >
-                        <Plus className="h-3 w-3" />
+                        <Plus className="h-3.5 w-3.5" />
                         <span>Agregar Pilar</span>
                       </button>
                     </div>
-                    <div className="space-y-3">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {(personalForm.pillars || []).map((pillar, idx) => (
-                        <div key={idx} className="p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-2">
+                        <div key={idx} className="p-3.5 rounded-xl border border-zinc-800 bg-zinc-950/70 space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-mono text-accent font-semibold">Pilar #{idx + 1}</span>
                             <button
@@ -787,18 +872,18 @@ export default function AdminModal({ isOpen, onClose }) {
                           </div>
                           <input
                             type="text"
-                            placeholder="Título del pilar (ej: Desarrollo Frontend)"
+                            placeholder="Título (ej: Análisis & Requerimientos)"
                             value={pillar.title}
                             onChange={(e) => {
                               const updated = [...(personalForm.pillars || [])];
                               updated[idx] = { ...updated[idx], title: e.target.value };
                               setPersonalForm({ ...personalForm, pillars: updated });
                             }}
-                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-accent focus:outline-none"
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-accent focus:outline-none font-medium"
                           />
                           <textarea
-                            rows={2}
-                            placeholder="Descripción del pilar..."
+                            rows={3}
+                            placeholder="Descripción detallada del pilar..."
                             value={pillar.description}
                             onChange={(e) => {
                               const updated = [...(personalForm.pillars || [])];
@@ -812,12 +897,13 @@ export default function AdminModal({ isOpen, onClose }) {
                     </div>
                   </div>
 
-                  {/* Habilidades Interpersonales (Soft Skills) */}
-                  <div className="pt-3 border-t border-zinc-800/80">
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-xs font-mono text-zinc-300 font-semibold">
-                        Habilidades Interpersonales (Soft Skills)
-                      </label>
+                  {/* Habilidades Interpersonales */}
+                  <div className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-mono uppercase tracking-wider text-accent font-semibold flex items-center gap-2">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-accent" />
+                        Habilidades Interpersonales (Recuadro Inferior Izquierdo)
+                      </h4>
                       <button
                         type="button"
                         onClick={() => {
@@ -827,13 +913,14 @@ export default function AdminModal({ isOpen, onClose }) {
                             softSkills: [...current, '']
                           });
                         }}
-                        className="inline-flex items-center gap-1 text-[11px] font-mono text-accent hover:underline cursor-pointer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent text-xs font-semibold text-white cursor-pointer shadow-sm"
                       >
-                        <Plus className="h-3 w-3" />
+                        <Plus className="h-3.5 w-3.5" />
                         <span>Agregar Habilidad</span>
                       </button>
                     </div>
-                    <div className="space-y-2">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {(personalForm.softSkills || []).map((skill, idx) => (
                         <div key={idx} className="flex items-center gap-2">
                           <input
@@ -863,13 +950,14 @@ export default function AdminModal({ isOpen, onClose }) {
                     </div>
                   </div>
 
-                  <div className="pt-3">
+                  {/* Botón Guardar */}
+                  <div className="pt-2">
                     <button
                       type="submit"
                       className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-accent bg-accent-hover text-xs font-semibold text-white shadow-md cursor-pointer"
                     >
                       <Save className="h-4 w-4" />
-                      <span>Guardar Datos Personales</span>
+                      <span>Guardar Todo Sobre Mí</span>
                     </button>
                   </div>
                 </form>

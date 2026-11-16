@@ -15,6 +15,12 @@ export const personalData = {
   linkedin: "https://linkedin.com/in/emanuel-ferreyra",
   portfolioRepo: "https://github.com/1elema1/portfolioferreyra",
   cvFileName: "Emanuel_Ferreyra_CV.pdf",
+
+  // Campos de la sección Sobre Mí
+  aboutTitle: "Desarrollo de Software End-to-End",
+  aboutSubtitle: "Acompaño cada proyecto en todas sus fases: desde la concepción de la idea y el modelado técnico hasta el código en producción.",
+  aboutEducationIntro: "Soy estudiante de la Tecnicatura en Analista en Sistemas (IES21) con sólida base en programación, arquitectura de software y bases de datos.",
+
   languages: [
     { name: "Español", level: "Nativo" },
     { name: "Inglés", level: "A2" }

@@ -52,10 +52,10 @@ export default function About() {
             / sobre mí
           </p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Desarrollo de Software End-to-End
+            {personal.aboutTitle || "Desarrollo de Software End-to-End"}
           </h2>
           <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-zinc-400 max-w-2xl font-normal">
-            Acompaño cada proyecto en todas sus fases: desde la concepción de la idea y el modelado técnico hasta el código en producción.
+            {personal.aboutSubtitle || "Acompaño cada proyecto en todas sus fases: desde la concepción de la idea y el modelado técnico hasta el código en producción."}
           </p>
         </div>
 
@@ -70,7 +70,7 @@ export default function About() {
                 Perfil Profesional
               </h3>
               <p className="text-sm leading-relaxed text-slate-700 dark:text-zinc-300">
-                Soy estudiante de la <span className="text-accent font-medium">Tecnicatura en Analista en Sistemas (IES21)</span> con sólida base en programación, arquitectura de software y bases de datos.
+                {personal.aboutEducationIntro || "Soy estudiante de la Tecnicatura en Analista en Sistemas (IES21) con sólida base en programación, arquitectura de software y bases de datos."}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
                 {personal.bio}
