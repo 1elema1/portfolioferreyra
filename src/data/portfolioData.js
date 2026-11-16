@@ -1,3 +1,29 @@
+/**
+ * ==============================================================================
+ * ARCHIVO CENTRAL DE DATOS DEL PORTFOLIO — EMANUEL FERREYRA
+ * ==============================================================================
+ * 
+ * ¿CÓMO EDITAR TUS PROYECTOS?
+ * ------------------------------------------------------------------------------
+ * 1. Para AGREGAR un proyecto:
+ *    Copia y pega uno de los objetos de 'projectsData', cambia el 'id' (ej: 'project-5')
+ *    y completa sus campos.
+ * 
+ * 2. Para EDITAR un proyecto:
+ *    Modifica directamente el texto, título, tecnologías o enlaces de cualquiera de ellos.
+ * 
+ * 3. Para ELIMINAR un proyecto:
+ *    Borra el bloque de código entre llaves { ... } del proyecto que no desees.
+ * 
+ * 4. Para SUBIR UNA IMAGEN:
+ *    - Coloca tu imagen (JPG, PNG, WebP) en la carpeta: 'public/projects/'
+ *      (ejemplo: 'public/projects/mi-sistema.png')
+ *    - En el campo 'image' escribe: "/projects/mi-sistema.png"
+ *    - Si no tienes imagen o lo dejas en 'null', el sistema mostrará un elegante
+ *      diseño tecnológico con gradiente azul y el icono del proyecto automáticamente.
+ * ==============================================================================
+ */
+
 export const personalData = {
   name: "Emanuel Ferreyra",
   shortName: "Emanuel",
@@ -64,11 +90,13 @@ export const projectsData = [
     title: "Solem E-Commerce & Gestión Comercial",
     category: "Emprendimiento & Full Stack",
     tagline: "Plataforma de ventas, catálogo dinámico y control de inventario",
-    shortDescription: "Plataforma desarrollada para la gestión integral de ventas físicas y online de indumentaria/accesorios, con catálogo dinámico y pedidos centralizados.",
+    shortDescription: "Plataforma desarrollada para la gestión integral de ventas físicas y online, con catálogo dinámico y pedidos centralizados.",
     detailedDescription: "Sistema integral desarrollado para potenciar el emprendimiento Solem. Cuenta con una vitrina digital para clientes con experiencia de compra fluida y un panel administrativo para coordinar stock, registrar pedidos presenciales/digitales y gestionar interacciones con clientes. Implementado bajo una arquitectura modular y escalable.",
+    // Aquí puedes colocar la ruta de tu imagen, ej: "/projects/solem.png", o dejar 'null'
+    image: null,
     status: "En Producción",
-    statusType: "production", // production | beta | academic
-    featured: true,
+    statusType: "production", // opciones: 'production' | 'beta' | 'academic' | 'completed'
+    featured: true, // Si es true, se muestra en el panel grande superior
     techStack: ["React", "Node.js", "Express", "Tailwind CSS", "SQL", "Vercel"],
     highlights: [
       "Catálogo público responsivo con categorización y filtros dinámicos",
@@ -86,6 +114,7 @@ export const projectsData = [
     tagline: "Arquitectura backend robusta para control de operaciones y usuarios",
     shortDescription: "API RESTful construida con Node.js y Express conectada a base de datos relacional para gestión de datos, autenticación y transacciones.",
     detailedDescription: "Desarrollo de un backend profesional con arquitectura por capas (Controladores, Servicios, Repositorios). Manejo de validaciones estrictas de datos de entrada, control de errores centralizado, endpoints RESTful testeados y modelado de relaciones complejas en SQL.",
+    image: null,
     status: "Completado",
     statusType: "completed",
     featured: false,
@@ -106,6 +135,7 @@ export const projectsData = [
     tagline: "Software empresarial con persistencia y patrones de diseño",
     shortDescription: "Sistema desarrollado en Java enfocado en la aplicación estricta de principios POO, modelado UML y persistencia de datos.",
     detailedDescription: "Proyecto académico avanzado en el IES21 donde se aplicaron patrones de diseño de software (MVC), diagramas de clases y casos de uso en UML, y manejo de excepciones en Java con interfaz gráfica de escritorio y conexión a base de datos.",
+    image: null,
     status: "Académico",
     statusType: "academic",
     featured: false,
@@ -126,6 +156,7 @@ export const projectsData = [
     tagline: "Experiencia web interactiva con React, Tailwind CSS y animaciones",
     shortDescription: "Portfolio moderno de alto impacto diseñado para presentar proyectos, trayectoria técnica y facilitar contacto profesional.",
     detailedDescription: "Desarrollado con React 19, Tailwind CSS v4 y Framer Motion. Incorpora terminal interactiva, efectos de iluminación ambiental, arquitectura de datos desacoplada y diseño 100% responsivo optimizado para despliegue continuo en Vercel.",
+    image: null,
     status: "En Producción",
     statusType: "production",
     featured: false,

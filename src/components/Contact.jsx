@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { personalData } from '../data/portfolioData';
 import { Mail, Phone, MapPin, Copy, Check, Download, MessageSquare } from 'lucide-react';
-import { GithubIcon, LinkedinIcon } from './Icons';
+import { GithubIcon } from './Icons';
 
 export default function Contact() {
   const [copied, setCopied] = useState(false);
@@ -14,16 +14,16 @@ export default function Contact() {
 
   return (
     <section id="contact" className="relative py-28 border-t border-zinc-900 bg-zinc-950 overflow-hidden">
-      {/* Background radial glow */}
+      {/* Background blue radial glow */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="h-[450px] w-[450px] rounded-full bg-emerald-500/10 blur-[130px]"></div>
+        <div className="h-[480px] w-[480px] rounded-full bg-blue-600/15 blur-[140px]"></div>
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
         
         {/* Badge status */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-mono text-emerald-300 mb-6">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-950/40 px-4 py-1.5 text-xs font-mono text-blue-300 mb-6">
+          <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse"></span>
           <span>Open to Work · Disponibilidad Inmediata Full Time</span>
         </div>
 
@@ -39,7 +39,7 @@ export default function Contact() {
         <div className="flex flex-wrap items-center justify-center gap-4 mb-16">
           <a
             href={`mailto:${personalData.email}`}
-            className="group inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-3.5 text-sm font-semibold text-zinc-950 transition-all hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/25 hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-0.5"
           >
             <Mail className="h-4 w-4" />
             <span>Enviar Correo</span>
@@ -49,18 +49,18 @@ export default function Contact() {
             href={`https://wa.me/549${personalData.phoneRaw}?text=Hola%20Emanuel,%20vi%20tu%20portfolio%20y%20me%20gustar%C3%ADa%20contactarte.`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-3.5 text-sm font-medium text-zinc-200 transition-all hover:border-emerald-500/50 hover:bg-zinc-800 hover:text-white hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-3.5 text-sm font-medium text-white transition-all hover:border-blue-500/50 hover:bg-zinc-800 hover:-translate-y-0.5"
           >
-            <MessageSquare className="h-4 w-4 text-emerald-400" />
+            <MessageSquare className="h-4 w-4 text-blue-400" />
             <span>WhatsApp Directo</span>
           </a>
 
           <a
             href={`/${personalData.cvFileName}`}
             download={personalData.cvFileName}
-            className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950 px-5 py-3.5 text-sm font-medium text-zinc-400 transition-all hover:border-zinc-700 hover:text-zinc-200"
+            className="inline-flex items-center gap-2 rounded-xl border border-zinc-800 bg-black px-5 py-3.5 text-sm font-medium text-zinc-300 transition-all hover:border-zinc-700 hover:text-white hover:bg-zinc-900"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4 text-zinc-400" />
             <span>Descargar CV</span>
           </a>
         </div>
@@ -69,37 +69,37 @@ export default function Contact() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
           
           {/* Email card */}
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 backdrop-blur-sm relative group">
+          <div className="rounded-2xl border border-zinc-800 bg-black/80 p-5 backdrop-blur-sm relative group">
             <div className="flex items-center justify-between mb-2">
-              <Mail className="h-4 w-4 text-emerald-400" />
+              <Mail className="h-4 w-4 text-blue-400" />
               <button
                 onClick={copyEmail}
-                className="text-zinc-500 hover:text-zinc-300 p-1 rounded-md transition-colors"
+                className="text-zinc-500 hover:text-blue-300 p-1 rounded-md transition-colors"
                 title="Copiar correo al portapapeles"
               >
-                {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? <Check className="h-3.5 w-3.5 text-blue-400" /> : <Copy className="h-3.5 w-3.5" />}
               </button>
             </div>
             <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">Email</p>
-            <p className="text-xs font-semibold text-zinc-200 truncate mt-0.5 font-mono">
+            <p className="text-xs font-semibold text-white truncate mt-0.5 font-mono">
               {personalData.email}
             </p>
           </div>
 
           {/* Phone card */}
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 backdrop-blur-sm">
-            <Phone className="h-4 w-4 text-emerald-400 mb-2" />
+          <div className="rounded-2xl border border-zinc-800 bg-black/80 p-5 backdrop-blur-sm">
+            <Phone className="h-4 w-4 text-blue-400 mb-2" />
             <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">Teléfono</p>
-            <p className="text-xs font-semibold text-zinc-200 mt-0.5 font-mono">
+            <p className="text-xs font-semibold text-white mt-0.5 font-mono">
               {personalData.phone}
             </p>
           </div>
 
           {/* Location card */}
-          <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 backdrop-blur-sm">
-            <MapPin className="h-4 w-4 text-emerald-400 mb-2" />
+          <div className="rounded-2xl border border-zinc-800 bg-black/80 p-5 backdrop-blur-sm">
+            <MapPin className="h-4 w-4 text-blue-400 mb-2" />
             <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">Ubicación</p>
-            <p className="text-xs font-semibold text-zinc-200 mt-0.5">
+            <p className="text-xs font-semibold text-white mt-0.5">
               {personalData.location}
             </p>
           </div>
@@ -109,11 +109,11 @@ export default function Contact() {
             href={personalData.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-2xl border border-zinc-800/80 bg-zinc-900/40 p-5 backdrop-blur-sm transition-all hover:border-zinc-700 hover:bg-zinc-900/70 block"
+            className="rounded-2xl border border-zinc-800 bg-black/80 p-5 backdrop-blur-sm transition-all hover:border-blue-500/40 hover:bg-slate-950 block"
           >
-            <GithubIcon className="h-4 w-4 text-emerald-400 mb-2" />
+            <GithubIcon className="h-4 w-4 text-blue-400 mb-2" />
             <p className="font-mono text-[10px] uppercase tracking-wider text-zinc-500">GitHub</p>
-            <p className="text-xs font-semibold text-zinc-200 mt-0.5 font-mono">
+            <p className="text-xs font-semibold text-white mt-0.5 font-mono">
               @{personalData.githubUsername}
             </p>
           </a>
