@@ -24,7 +24,7 @@
  * ==============================================================================
  */
 
-export const personalData = {
+// Duplicate personalData export removed; use src/data/personalData.js instead
   name: "Emanuel Ferreyra",
   shortName: "Emanuel",
   handle: "emanuel.ferreyra",
@@ -32,7 +32,7 @@ export const personalData = {
   location: "Córdoba, Argentina",
   status: "Open to Work / Full Time",
   availability: "Disponibilidad Inmediata Full-Time",
-  bio: "Técnico Analista de Sistemas enfocado en el desarrollo end-to-end de software. Diseño y construyo aplicaciones web modernas, robustas y escalables: desde el relevamiento de requerimientos y modelado de datos hasta el desarrollo frontend, APIs backend y despliegue en producción.",
+
   email: "ferreyraemanuel19@gmail.com",
   phone: "+54 9 351 289-0844",
   phoneRaw: "3512890844",

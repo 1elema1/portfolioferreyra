@@ -4,37 +4,9 @@ import { Layers, Database, Code2, Cpu, CheckCircle2, HeartHandshake } from 'luci
 export default function About() {
   const { personal } = usePortfolio();
 
-  const pillars = [
-    {
-      icon: <Layers className="h-5 w-5 text-accent" />,
-      title: "Análisis & Requerimientos",
-      description: "Relevamiento de necesidades del cliente, diseño de soluciones a medida, modelado de sistemas en diagramas UML (casos de uso, clases, secuencia)."
-    },
-    {
-      icon: <Code2 className="h-5 w-5 text-accent" />,
-      title: "Desarrollo Frontend",
-      description: "Creación de interfaces gráficas interactivas con React, JavaScript moderno y Tailwind CSS, garantizando experiencia de usuario intuitiva y 100% responsiva."
-    },
-    {
-      icon: <Cpu className="h-5 w-5 text-accent" />,
-      title: "Backend & APIs REST",
-      description: "Desarrollo de servicios robustos con Node.js, Express y Java. Endpoints seguros, validaciones estrictas y arquitectura modular limpia."
-    },
-    {
-      icon: <Database className="h-5 w-5 text-accent" />,
-      title: "Bases de Datos & Deploy",
-      description: "Modelado e implementación de bases de datos relacionales (SQL / PostgreSQL / MySQL) y NoSQL (MongoDB, Firebase). Despliegue ágil en Vercel."
-    }
-  ];
+  const pillars = personal.pillars ?? [];
 
-  const softSkills = [
-    "Trabajo en equipo y colaboración ágil",
-    "Comunicación clara y asertiva",
-    "Capacidad de aprendizaje continuo",
-    "Resolución analítica de problemas",
-    "Adaptabilidad y proactividad constante",
-    "Gestión organizada del tiempo"
-  ];
+  const softSkills = personal.softSkills ?? [];
 
   return (
     <section id="about" className="relative py-24 border-t border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#07090e] transition-colors">

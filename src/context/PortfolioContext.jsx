@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  personalData as defaultPersonal, 
-  skillsData as defaultSkills, 
-  projectsData as defaultProjects, 
-  experienceData as defaultExperience, 
-  educationData as defaultEducation 
+import { personalData as defaultPersonal } from '../data/personalData';
+import {
+  skillsData as defaultSkills,
+  projectsData as defaultProjects,
+  experienceData as defaultExperience,
+  educationData as defaultEducation
 } from '../data/portfolioData';
 
 const PortfolioContext = createContext();
@@ -16,10 +16,7 @@ const STORAGE_KEYS = {
   EXPERIENCE: 'portfolio_ferreyra_experience_v4',
   EDUCATION: 'portfolio_ferreyra_education_v4',
   SECTIONS: 'portfolio_ferreyra_sections_v4',
-  THEME_MODE: 'portfolio_ferreyra_theme_mode_v5',
-  ACCENT_COLOR: 'portfolio_ferreyra_accent_color_v4',
-  AUTH: 'portfolio_ferreyra_auth_v4',
-  PWD: 'portfolio_ferreyra_pwd_v4'
+
 };
 
 const DEFAULT_PASSWORD = 'emanuel2026';
@@ -285,6 +282,25 @@ export function PortfolioProvider({ children }) {
     return { success: true, message: 'Contraseña actualizada con éxito.' };
   };
 
+  const savePersonalData = async () => {
+    try {
+      const response = await fetch('/api/savePersonal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ personal })
+      });
+      if (!response.ok) {
+        console.error('Failed to save personal data');
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error('Error saving personal data', e);
+      return false;
+    }
+  };
+
+
   // Proyectos
   const addProject = (newProject) => {
     const id = `project-${Date.now()}`;
@@ -391,7 +407,7 @@ export function PortfolioProvider({ children }) {
         resetAllToDefault,
         isAdminAuthenticated,
         login,
-        logout,
+        logout, savePersonalData,
         changePassword
       }}
     >

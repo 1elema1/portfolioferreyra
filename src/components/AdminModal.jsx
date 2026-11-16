@@ -34,7 +34,8 @@ export default function AdminModal({ isOpen, onClose }) {
     isAdminAuthenticated, 
     login, 
     logout, 
-    changePassword
+    changePassword,
+    savePersonalData
   } = usePortfolio();
 
   // Estados de login
@@ -656,7 +657,35 @@ export default function AdminModal({ isOpen, onClose }) {
                         onChange={(e) => setPersonalForm({ ...personalForm, linkedin: e.target.value })}
                         className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
                       />
-                    </div>
+</div>
+{/* Pillars (JSON) */}
+<div className="grid grid-cols-1 gap-4 mt-2">
+  <label className="block text-xs font-mono text-zinc-400 mb-1">Pilares (JSON)</label>
+  <textarea rows={6}
+    value={JSON.stringify(personalForm.pillars, null, 2)}
+    onChange={(e) => {
+      try {
+        const parsed = JSON.parse(e.target.value);
+        setPersonalForm({ ...personalForm, pillars: parsed });
+      } catch (err) {}
+    }}
+    className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
+  />
+</div>
+{/* Soft Skills (JSON) */}
+<div className="grid grid-cols-1 gap-4 mt-2">
+  <label className="block text-xs font-mono text-zinc-400 mb-1">Soft Skills (JSON)</label>
+  <textarea rows={4}
+    value={JSON.stringify(personalForm.softSkills, null, 2)}
+    onChange={(e) => {
+      try {
+        const parsed = JSON.parse(e.target.value);
+        setPersonalForm({ ...personalForm, softSkills: parsed });
+      } catch (err) {}
+    }}
+    className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
+  />
+</div>
                   </div>
 
                   <div className="pt-3">
