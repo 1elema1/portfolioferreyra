@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Menu, X, Terminal, ArrowRight, Lock, Sun, Moon } from 'lucide-react';
+import { Menu, X, Terminal, ArrowRight, Sun, Moon } from 'lucide-react';
 
-export default function Navbar({ onOpenAdmin }) {
+export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { themeMode, toggleTheme, personal } = usePortfolio();
@@ -63,7 +63,7 @@ export default function Navbar({ onOpenAdmin }) {
           {/* Botón Público Modo Claro / Oscuro */}
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-900/80 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-zinc-300 hover:border-accent hover:text-accent transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-900/80 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-zinc-300 hover:border-accent hover:text-accent transition-all cursor-pointer shadow-2xs mr-1"
             title={isDark ? "Cambiar a Tema Claro" : "Cambiar a Tema Oscuro"}
             aria-label="Alternar tema"
           >
@@ -78,16 +78,6 @@ export default function Navbar({ onOpenAdmin }) {
                 <span className="font-mono text-[11px]">Oscuro</span>
               </>
             )}
-          </button>
-
-          {/* Botón Discreto para Panel de Administración */}
-          <button
-            onClick={onOpenAdmin}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 px-2.5 py-1.5 text-xs text-slate-500 dark:text-zinc-400 hover:border-accent hover:text-accent transition-all cursor-pointer"
-            title="Panel de Configuración (Acceso Privado)"
-          >
-            <Lock className="h-3 w-3 text-accent" />
-            <span>Admin</span>
           </button>
 
           <a
@@ -109,14 +99,6 @@ export default function Navbar({ onOpenAdmin }) {
             title={isDark ? "Cambiar a Tema Claro" : "Cambiar a Tema Oscuro"}
           >
             {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-blue-600" />}
-          </button>
-
-          <button
-            onClick={onOpenAdmin}
-            className="p-2 text-slate-600 dark:text-zinc-400 hover:text-accent rounded-lg transition-colors cursor-pointer"
-            title="Panel de Administración"
-          >
-            <Lock className="h-4 w-4 text-accent" />
           </button>
 
           <button
@@ -158,17 +140,6 @@ export default function Navbar({ onOpenAdmin }) {
               <span className="font-semibold text-accent font-mono">
                 {isDark ? 'Oscuro activo' : 'Claro activo'}
               </span>
-            </button>
-
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAdmin();
-              }}
-              className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 py-2.5 text-xs font-medium text-slate-700 dark:text-zinc-300"
-            >
-              <Lock className="h-3.5 w-3.5 text-accent" />
-              <span>Panel de Administración</span>
             </button>
 
             <a

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -14,9 +14,50 @@ function PortfolioApp() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const { sections } = usePortfolio();
 
+  // Detección de ruta secreta /administrador
+  useEffect(() => {
+    const checkAdminRoute = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path.includes('administrador') || hash.includes('administrador') || path === '/admin' || hash === '#admin') {
+        setIsAdminModalOpen(true);
+      }
+    };
+
+    checkAdminRoute();
+
+    // Atajo de teclado secreto: Ctrl + Shift + A
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        setIsAdminModalOpen(prev => !prev);
+      }
+    };
+
+    window.addEventListener('popstate', checkAdminRoute);
+    window.addEventListener('hashchange', checkAdminRoute);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('popstate', checkAdminRoute);
+      window.removeEventListener('hashchange', checkAdminRoute);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const handleCloseAdmin = () => {
+    setIsAdminModalOpen(false);
+    // Limpiar la URL si entró por /administrador
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    if (path.includes('administrador') || hash.includes('administrador') || path === '/admin' || hash === '#admin') {
+      window.history.pushState(null, '', '/');
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-300">
-      <Navbar onOpenAdmin={() => setIsAdminModalOpen(true)} />
+    <div className="min-h-screen flex flex-col transition-colors duration-200">
+      <Navbar />
       
       <main className="flex-1">
         {sections.hero && <Hero />}
@@ -27,12 +68,12 @@ function PortfolioApp() {
         {sections.contact && <Contact />}
       </main>
 
-      <Footer onOpenAdmin={() => setIsAdminModalOpen(true)} />
+      <Footer />
       
-      {/* Modal de Administración Privado Completo */}
+      {/* Modal de Administración Privado (acceso exclusivo por link secreto /administrador) */}
       <AdminModal
         isOpen={isAdminModalOpen}
-        onClose={() => setIsAdminModalOpen(false)}
+        onClose={handleCloseAdmin}
       />
     </div>
   );

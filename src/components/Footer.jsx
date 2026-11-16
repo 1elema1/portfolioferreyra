@@ -1,7 +1,7 @@
 import { usePortfolio } from '../context/PortfolioContext';
-import { ArrowUp, Terminal, Lock, Sun, Moon } from 'lucide-react';
+import { ArrowUp, Terminal, Sun, Moon } from 'lucide-react';
 
-export default function Footer({ onOpenAdmin }) {
+export default function Footer() {
   const { personal, themeMode, toggleTheme } = usePortfolio();
   const isDark = themeMode === 'dark';
 
@@ -36,17 +36,6 @@ export default function Footer({ onOpenAdmin }) {
           >
             {isDark ? <Sun className="h-3 w-3 text-amber-400" /> : <Moon className="h-3 w-3 text-blue-600" />}
             <span>{isDark ? 'Tema Claro' : 'Tema Oscuro'}</span>
-          </button>
-
-          <span className="text-slate-200 dark:text-zinc-800">|</span>
-
-          <button
-            onClick={onOpenAdmin}
-            className="inline-flex items-center gap-1 text-[11px] text-slate-500 dark:text-zinc-400 hover:text-accent transition-colors cursor-pointer"
-            title="Acceso al panel de administración"
-          >
-            <Lock className="h-3 w-3 text-accent" />
-            <span>Admin</span>
           </button>
 
           <span className="text-slate-200 dark:text-zinc-800">|</span>
