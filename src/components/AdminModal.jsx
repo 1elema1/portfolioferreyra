@@ -40,6 +40,8 @@ export default function AdminModal({ isOpen, onClose }) {
   // Estados de login
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Navegación de pestañas en el panel
   // 'sections' | 'personal' | 'projects' | 'skills' | 'experience' | 'security'
@@ -104,15 +106,26 @@ export default function AdminModal({ isOpen, onClose }) {
   };
 
   // Manejador Login
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
+    if (!passwordInput.trim()) {
+      setLoginError('Por favor ingresa la contraseña');
+      return;
+    }
     setLoginError('');
-    const res = login(passwordInput);
-    if (!res.success) {
-      setLoginError(res.message);
-    } else {
-      setPasswordInput('');
-      setPersonalForm({ ...personal });
+    setIsLoggingIn(true);
+    try {
+      const res = await login(passwordInput);
+      if (!res.success) {
+        setLoginError(res.message || 'Contraseña incorrecta');
+      } else {
+        setPasswordInput('');
+        setPersonalForm({ ...personal });
+      }
+    } catch (err) {
+      setLoginError('Error de autenticación');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -292,30 +305,41 @@ export default function AdminModal({ isOpen, onClose }) {
               </p>
 
               <form onSubmit={handleLoginSubmit} className="space-y-4">
-                <input
-                  type="password"
-                  placeholder="Contraseña de administrador"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-500 focus:border-accent focus:outline-none font-mono"
-                  autoFocus
-                />
+                <div className="relative">
+                  <input
+                    type={showLoginPassword ? "text" : "password"}
+                    placeholder="Contraseña de administrador"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 pr-11 text-sm text-white placeholder-zinc-500 focus:border-accent focus:outline-none font-mono"
+                    autoFocus
+                    disabled={isLoggingIn}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white p-1 rounded-md transition-colors"
+                    title={showLoginPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                  >
+                    {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+
                 {loginError && (
                   <p className="text-xs text-red-400 flex items-center justify-center gap-1">
                     <AlertCircle className="h-3.5 w-3.5" />
                     {loginError}
                   </p>
                 )}
+
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-accent bg-accent-hover py-3 text-sm font-semibold text-white transition-all shadow-lg cursor-pointer"
+                  disabled={isLoggingIn}
+                  className="w-full rounded-xl bg-accent bg-accent-hover py-3 text-sm font-semibold text-white transition-all shadow-lg cursor-pointer disabled:opacity-50"
                 >
-                  Entrar al Panel
+                  {isLoggingIn ? 'Verificando...' : 'Entrar al Panel'}
                 </button>
               </form>
-              <div className="mt-6 pt-4 border-t border-zinc-900 text-xs text-zinc-500 font-mono">
-                Clave inicial: <span className="text-accent font-bold">emanuel2026</span>
-              </div>
             </div>
           ) : (
             /* Panel autenticado */

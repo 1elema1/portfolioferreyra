@@ -210,16 +210,60 @@ export function PortfolioProvider({ children }) {
   };
 
   // Auth methods
-  const getAdminPassword = () => {
-    return localStorage.getItem(STORAGE_KEYS.PWD) || DEFAULT_PASSWORD;
+  const getValidLocalPasswords = () => {
+    const list = [];
+    const custom = localStorage.getItem(STORAGE_KEYS.PWD);
+    if (custom) list.push(custom);
+
+    // Client-side environment variables injected during build from Vercel
+    try {
+      if (typeof __ADMIN_PASSWORD__ !== 'undefined' && __ADMIN_PASSWORD__) list.push(__ADMIN_PASSWORD__);
+      if (typeof __PORTFOLIOVERCEL__ !== 'undefined' && __PORTFOLIOVERCEL__) list.push(__PORTFOLIOVERCEL__);
+      if (typeof __SESSION_SECRET__ !== 'undefined' && __SESSION_SECRET__) list.push(__SESSION_SECRET__);
+
+      if (import.meta.env.ADMIN_PASSWORD) list.push(import.meta.env.ADMIN_PASSWORD);
+      if (import.meta.env.PORTFOLIOVERCEL) list.push(import.meta.env.PORTFOLIOVERCEL);
+      if (import.meta.env.VITE_ADMIN_PASSWORD) list.push(import.meta.env.VITE_ADMIN_PASSWORD);
+    } catch (e) {}
+
+    list.push(DEFAULT_PASSWORD);
+    return list;
   };
 
-  const login = (password) => {
-    if (password === getAdminPassword()) {
+  const login = async (password) => {
+    if (!password) {
+      return { success: false, message: 'Por favor ingresa la contraseña' };
+    }
+
+    // 1. Intento por Vercel Serverless Function (/api/auth)
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setIsAdminAuthenticated(true);
+          sessionStorage.setItem(STORAGE_KEYS.AUTH, 'true');
+          return { success: true };
+        }
+      } else if (response.status === 401) {
+        return { success: false, message: 'Contraseña incorrecta' };
+      }
+    } catch (e) {
+      // Si la API no está disponible en este entorno, recurrir a validación local
+    }
+
+    // 2. Validación de respaldo contra variables de entorno o local
+    const validList = getValidLocalPasswords();
+    if (validList.includes(password)) {
       setIsAdminAuthenticated(true);
       sessionStorage.setItem(STORAGE_KEYS.AUTH, 'true');
       return { success: true };
     }
+
     return { success: false, message: 'Contraseña incorrecta' };
   };
 
@@ -229,7 +273,8 @@ export function PortfolioProvider({ children }) {
   };
 
   const changePassword = (currentPassword, newPassword) => {
-    if (currentPassword !== getAdminPassword()) {
+    const validList = getValidLocalPasswords();
+    if (!validList.includes(currentPassword)) {
       return { success: false, message: 'La contraseña actual no es válida.' };
     }
     if (!newPassword || newPassword.length < 4) {
