@@ -16,7 +16,7 @@ const STORAGE_KEYS = {
   EXPERIENCE: 'portfolio_ferreyra_experience_v4',
   EDUCATION: 'portfolio_ferreyra_education_v4',
   SECTIONS: 'portfolio_ferreyra_sections_v4',
-  THEME_MODE: 'portfolio_ferreyra_theme_mode_v4',
+  THEME_MODE: 'portfolio_ferreyra_theme_mode_v5',
   ACCENT_COLOR: 'portfolio_ferreyra_accent_color_v4',
   AUTH: 'portfolio_ferreyra_auth_v4',
   PWD: 'portfolio_ferreyra_pwd_v4'
@@ -88,8 +88,9 @@ export function PortfolioProvider({ children }) {
   // 1. Tema Claro / Oscuro (público) - Light por defecto
   const [themeMode, setThemeMode] = useState(() => {
     try {
+      localStorage.removeItem('portfolio_ferreyra_theme_mode_v4');
       const saved = localStorage.getItem(STORAGE_KEYS.THEME_MODE);
-      if (saved) return saved;
+      if (saved === 'dark' || saved === 'light') return saved;
     } catch (e) {}
     return 'light';
   });

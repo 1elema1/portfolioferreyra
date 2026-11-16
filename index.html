@@ -20,11 +20,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Anti-flicker theme initialization: defaults to light mode -->
+    <!-- Anti-flicker theme initialization: strictly defaults to LIGHT mode -->
     <script>
       (function() {
         try {
-          var saved = localStorage.getItem('portfolio_ferreyra_theme_mode_v4');
+          localStorage.removeItem('portfolio_ferreyra_theme_mode_v4');
+          var saved = localStorage.getItem('portfolio_ferreyra_theme_mode_v5');
           if (saved === 'dark') {
             document.documentElement.classList.add('dark');
             document.documentElement.classList.remove('light');
@@ -32,7 +33,10 @@
             document.documentElement.classList.remove('dark');
             document.documentElement.classList.add('light');
           }
-        } catch (e) {}
+        } catch (e) {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        }
       })();
     </script>
   </head>
