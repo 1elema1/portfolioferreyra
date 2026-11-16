@@ -1,6 +1,13 @@
 import { usePortfolio } from '../context/PortfolioContext';
 import { Layers, Database, Code2, Cpu, CheckCircle2, HeartHandshake } from 'lucide-react';
 
+const PILLAR_ICONS = [
+  <Layers className="h-5 w-5 text-accent" />,
+  <Code2 className="h-5 w-5 text-accent" />,
+  <Cpu className="h-5 w-5 text-accent" />,
+  <Database className="h-5 w-5 text-accent" />,
+];
+
 export default function About() {
   const { personal } = usePortfolio();
 
@@ -69,7 +76,7 @@ export default function About() {
               >
                 <div>
                   <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent-light border border-accent">
-                    {pillar.icon}
+                    {PILLAR_ICONS[index % PILLAR_ICONS.length]}
                   </div>
                   <h4 className="text-base font-semibold text-slate-900 dark:text-white mb-2">
                     {pillar.title}
