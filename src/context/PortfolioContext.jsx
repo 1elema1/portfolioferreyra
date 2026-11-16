@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 import { personalData as defaultPersonal } from '../data/personalData';
 import {
   skillsData as defaultSkills,
@@ -10,13 +12,16 @@ import {
 const PortfolioContext = createContext();
 
 const STORAGE_KEYS = {
+  THEME_MODE: 'portfolio_ferreyra_theme_mode_v4',
+  ACCENT_COLOR: 'portfolio_ferreyra_accent_color_v4',
+  SECTIONS: 'portfolio_ferreyra_sections_v4',
   PERSONAL: 'portfolio_ferreyra_personal_v4',
   SKILLS: 'portfolio_ferreyra_skills_v4',
   PROJECTS: 'portfolio_ferreyra_projects_v4',
   EXPERIENCE: 'portfolio_ferreyra_experience_v4',
   EDUCATION: 'portfolio_ferreyra_education_v4',
-  SECTIONS: 'portfolio_ferreyra_sections_v4',
-
+  AUTH: 'portfolio_ferreyra_auth_v4',
+  PWD: 'portfolio_ferreyra_admin_pwd_v4'
 };
 
 const DEFAULT_PASSWORD = 'emanuel2026';
@@ -82,10 +87,9 @@ const DEFAULT_SECTIONS = {
 };
 
 export function PortfolioProvider({ children }) {
-  // 1. Tema Claro / Oscuro (público) - Light por defecto
+  // 1. Tema Claro / Oscuro - Light por defecto
   const [themeMode, setThemeMode] = useState(() => {
     try {
-      localStorage.removeItem('portfolio_ferreyra_theme_mode_v4');
       const saved = localStorage.getItem(STORAGE_KEYS.THEME_MODE);
       if (saved === 'dark' || saved === 'light') return saved;
     } catch (e) {}
@@ -101,7 +105,7 @@ export function PortfolioProvider({ children }) {
     return 'blue';
   });
 
-  // 3. Control de visibilidad de secciones
+  // 3. Secciones
   const [sections, setSections] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SECTIONS);
@@ -160,10 +164,54 @@ export function PortfolioProvider({ children }) {
     return sessionStorage.getItem(STORAGE_KEYS.AUTH) === 'true';
   });
 
-  // Aplicar clases de tema y variables CSS dinámicas de color en el DOM
+  // =========================================================================
+  // SINCRONIZACIÓN EN TIEMPO REAL CON FIREBASE FIRESTORE (LA NUBE)
+  // =========================================================================
+  useEffect(() => {
+    const portfolioDocRef = doc(db, 'portfolio', 'content');
+
+    const unsubscribe = onSnapshot(portfolioDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const cloudData = docSnap.data();
+        if (cloudData.personal) setPersonal(prev => ({ ...prev, ...cloudData.personal }));
+        if (cloudData.projects) setProjects(cloudData.projects);
+        if (cloudData.skills) setSkills(cloudData.skills);
+        if (cloudData.experience) setExperience(cloudData.experience);
+        if (cloudData.education) setEducation(cloudData.education);
+        if (cloudData.sections) setSections(cloudData.sections);
+        if (cloudData.accentKey && ACCENT_PALETTES[cloudData.accentKey]) setAccentKey(cloudData.accentKey);
+      } else {
+        // Primera vez: Si la base de datos está vacía, la inicializamos con los datos actuales
+        setDoc(portfolioDocRef, {
+          personal,
+          projects,
+          skills,
+          experience,
+          education,
+          sections,
+          accentKey
+        }).catch(err => console.warn('Aviso al inicializar Firestore:', err));
+      }
+    }, (error) => {
+      console.warn('Aviso Firestore:', error.message);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Función interna para sincronizar inmediatamente cualquier cambio hacia Firebase
+  const syncToFirebase = async (partialData) => {
+    try {
+      const portfolioDocRef = doc(db, 'portfolio', 'content');
+      await setDoc(portfolioDocRef, partialData, { merge: true });
+    } catch (e) {
+      console.warn('Error guardando en Firebase Firestore:', e);
+    }
+  };
+
+  // Clases y colores dinámicos
   useEffect(() => {
     const root = document.documentElement;
-    // Dark/Light classes
     if (themeMode === 'dark') {
       root.classList.add('dark');
       root.classList.remove('light');
@@ -172,7 +220,6 @@ export function PortfolioProvider({ children }) {
       root.classList.remove('dark');
     }
 
-    // Dynamic accent CSS variables
     const palette = ACCENT_PALETTES[accentKey] || ACCENT_PALETTES.blue;
     root.style.setProperty('--color-accent', palette.hex);
     root.style.setProperty('--color-accent-hover', palette.hover);
@@ -181,7 +228,7 @@ export function PortfolioProvider({ children }) {
     root.style.setProperty('--color-accent-glow', palette.glow);
   }, [themeMode, accentKey]);
 
-  // Persistir en LocalStorage
+  // Persistir en LocalStorage como caché inmediata
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEYS.THEME_MODE, themeMode);
@@ -197,14 +244,21 @@ export function PortfolioProvider({ children }) {
     }
   }, [themeMode, accentKey, sections, personal, skills, projects, experience, education]);
 
-  // Toggle tema público
   const toggleTheme = () => {
     setThemeMode(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  // Toggle visibilidad de sección
   const toggleSection = (sectionKey) => {
-    setSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
+    setSections(prev => {
+      const next = { ...prev, [sectionKey]: !prev[sectionKey] };
+      syncToFirebase({ sections: next });
+      return next;
+    });
+  };
+
+  const handleSetAccentKey = (newAccent) => {
+    setAccentKey(newAccent);
+    syncToFirebase({ accentKey: newAccent });
   };
 
   // Auth methods
@@ -213,7 +267,6 @@ export function PortfolioProvider({ children }) {
     const custom = localStorage.getItem(STORAGE_KEYS.PWD);
     if (custom) list.push(custom);
 
-    // Client-side environment variables injected during build from Vercel
     try {
       if (typeof __ADMIN_PASSWORD__ !== 'undefined' && __ADMIN_PASSWORD__) list.push(__ADMIN_PASSWORD__);
       if (typeof __PORTFOLIOVERCEL__ !== 'undefined' && __PORTFOLIOVERCEL__) list.push(__PORTFOLIOVERCEL__);
@@ -233,7 +286,6 @@ export function PortfolioProvider({ children }) {
       return { success: false, message: 'Por favor ingresa la contraseña' };
     }
 
-    // 1. Intento por Vercel Serverless Function (/api/auth)
     try {
       const response = await fetch('/api/auth', {
         method: 'POST',
@@ -250,11 +302,8 @@ export function PortfolioProvider({ children }) {
       } else if (response.status === 401) {
         return { success: false, message: 'Contraseña incorrecta' };
       }
-    } catch (e) {
-      // Si la API no está disponible en este entorno, recurrir a validación local
-    }
+    } catch (e) {}
 
-    // 2. Validación de respaldo contra variables de entorno o local
     const validList = getValidLocalPasswords();
     if (validList.includes(password)) {
       setIsAdminAuthenticated(true);
@@ -282,26 +331,15 @@ export function PortfolioProvider({ children }) {
     return { success: true, message: 'Contraseña actualizada con éxito.' };
   };
 
-  const savePersonalData = async () => {
-    try {
-      const response = await fetch('/api/savePersonal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ personal })
-      });
-      if (!response.ok) {
-        console.error('Failed to save personal data');
-        return false;
-      }
-      return true;
-    } catch (e) {
-      console.error('Error saving personal data', e);
-      return false;
-    }
+  // Modificadores con sincronización automática en Firebase (Nube)
+  const updatePersonal = (fields) => {
+    setPersonal(prev => {
+      const updated = { ...prev, ...fields };
+      syncToFirebase({ personal: updated });
+      return updated;
+    });
   };
 
-
-  // Proyectos
   const addProject = (newProject) => {
     const id = `project-${Date.now()}`;
     const projectWithId = { ...newProject, id };
@@ -309,7 +347,9 @@ export function PortfolioProvider({ children }) {
     if (projectWithId.featured) {
       updatedProjects = updatedProjects.map(p => ({ ...p, featured: false }));
     }
-    setProjects([projectWithId, ...updatedProjects]);
+    const nextProjects = [projectWithId, ...updatedProjects];
+    setProjects(nextProjects);
+    syncToFirebase({ projects: nextProjects });
     return projectWithId;
   };
 
@@ -319,51 +359,75 @@ export function PortfolioProvider({ children }) {
       if (updatedFields.featured) {
         updated = updated.map(p => p.id === id ? p : { ...p, featured: false });
       }
+      syncToFirebase({ projects: updated });
       return updated;
     });
   };
 
   const deleteProject = (id) => {
-    setProjects(prev => prev.filter(p => p.id !== id));
+    setProjects(prev => {
+      const next = prev.filter(p => p.id !== id);
+      syncToFirebase({ projects: next });
+      return next;
+    });
   };
 
-  // Datos personales
-  const updatePersonal = (fields) => {
-    setPersonal(prev => ({ ...prev, ...fields }));
-  };
-
-  // Habilidades
   const updateSkillsCategory = (categoryKey, items) => {
-    setSkills(prev => ({ ...prev, [categoryKey]: items }));
+    setSkills(prev => {
+      const updated = { ...prev, [categoryKey]: items };
+      syncToFirebase({ skills: updated });
+      return updated;
+    });
   };
 
-  // Experiencia
   const addExperience = (item) => {
-    setExperience(prev => [item, ...prev]);
+    setExperience(prev => {
+      const next = [item, ...prev];
+      syncToFirebase({ experience: next });
+      return next;
+    });
   };
 
   const updateExperienceItem = (index, item) => {
-    setExperience(prev => prev.map((exp, i) => i === index ? item : exp));
+    setExperience(prev => {
+      const next = prev.map((exp, i) => i === index ? item : exp);
+      syncToFirebase({ experience: next });
+      return next;
+    });
   };
 
   const deleteExperienceItem = (index) => {
-    setExperience(prev => prev.filter((_, i) => i !== index));
+    setExperience(prev => {
+      const next = prev.filter((_, i) => i !== index);
+      syncToFirebase({ experience: next });
+      return next;
+    });
   };
 
-  // Educación
   const addEducation = (item) => {
-    setEducation(prev => [item, ...prev]);
+    setEducation(prev => {
+      const next = [item, ...prev];
+      syncToFirebase({ education: next });
+      return next;
+    });
   };
 
   const updateEducationItem = (index, item) => {
-    setEducation(prev => prev.map((edu, i) => i === index ? item : edu));
+    setEducation(prev => {
+      const next = prev.map((edu, i) => i === index ? item : edu);
+      syncToFirebase({ education: next });
+      return next;
+    });
   };
 
   const deleteEducationItem = (index) => {
-    setEducation(prev => prev.filter((_, i) => i !== index));
+    setEducation(prev => {
+      const next = prev.filter((_, i) => i !== index);
+      syncToFirebase({ education: next });
+      return next;
+    });
   };
 
-  // Restaurar todo a valores por defecto
   const resetAllToDefault = () => {
     setPersonal(defaultPersonal);
     setSkills(defaultSkills);
@@ -373,6 +437,15 @@ export function PortfolioProvider({ children }) {
     setSections(DEFAULT_SECTIONS);
     setAccentKey('blue');
     setThemeMode('light');
+    syncToFirebase({
+      personal: defaultPersonal,
+      skills: defaultSkills,
+      projects: defaultProjects,
+      experience: defaultExperience,
+      education: defaultEducation,
+      sections: DEFAULT_SECTIONS,
+      accentKey: 'blue'
+    });
     Object.values(STORAGE_KEYS).forEach(k => {
       if (k !== STORAGE_KEYS.PWD) localStorage.removeItem(k);
     });
@@ -384,7 +457,7 @@ export function PortfolioProvider({ children }) {
         themeMode,
         toggleTheme,
         accentKey,
-        setAccentKey,
+        setAccentKey: handleSetAccentKey,
         accentPalette: ACCENT_PALETTES[accentKey] || ACCENT_PALETTES.blue,
         sections,
         toggleSection,
@@ -407,7 +480,7 @@ export function PortfolioProvider({ children }) {
         resetAllToDefault,
         isAdminAuthenticated,
         login,
-        logout, savePersonalData,
+        logout,
         changePassword
       }}
     >
