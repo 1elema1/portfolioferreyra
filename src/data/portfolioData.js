@@ -24,7 +24,7 @@
  * ==============================================================================
  */
 
-// Duplicate personalData export removed; use src/data/personalData.js instead
+// personalData moved to src/data/personalData.js
   name: "Emanuel Ferreyra",
   shortName: "Emanuel",
   handle: "emanuel.ferreyra",
