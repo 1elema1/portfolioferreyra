@@ -24,31 +24,8 @@
  * ==============================================================================
  */
 
-// personalData moved to src/data/personalData.js
-  name: "Emanuel Ferreyra",
-  shortName: "Emanuel",
-  handle: "emanuel.ferreyra",
-  title: "Analista en Sistemas & Full Stack Developer",
-  location: "Córdoba, Argentina",
-  status: "Open to Work / Full Time",
-  availability: "Disponibilidad Inmediata Full-Time",
 
-  email: "ferreyraemanuel19@gmail.com",
-  phone: "+54 9 351 289-0844",
-  phoneRaw: "3512890844",
-  github: "https://github.com/1elema1",
-  githubUsername: "1elema1",
-  linkedin: "https://linkedin.com/in/emanuel-ferreyra",
-  portfolioRepo: "https://github.com/1elema1/portfolioferreyra",
-  cvFileName: "Emanuel_Ferreyra_CV.pdf",
-
-  stats: [
-    { label: "Proyectos Realizados", value: "8+" },
-    { label: "Formación Técnica", value: "IES21" },
-    { label: "Disponibilidad", value: "Full Time" },
-    { label: "Enfoque", value: "End-to-End" }
-  ]
-};
+/* personalData moved to src/data/personalData.js */
 
 export const skillsData = {
   frontend: [
