@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Terminal as TerminalIcon, Sparkles } from 'lucide-react';
+import { Terminal as TerminalIcon } from 'lucide-react';
 
 export default function InteractiveTerminal() {
   const { personal } = usePortfolio();
@@ -96,14 +96,7 @@ export default function InteractiveTerminal() {
           </div>
         </div>
 
-        {/* Quick status bar */}
-        <div className="bg-slate-100 dark:bg-zinc-950 px-4 py-2 border-t border-slate-200 dark:border-zinc-800/60 flex items-center justify-between text-[11px] text-slate-500 dark:text-zinc-500">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3 text-accent" />
-            <span>React 19 + Tailwind v4 + Vite</span>
-          </div>
-          <span className="font-medium">UTF-8</span>
-        </div>
+
       </div>
     </div>
   );
