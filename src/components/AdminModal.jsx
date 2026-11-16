@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { usePortfolio, ACCENT_PALETTES } from '../context/PortfolioContext';
 import { 
   X, Lock, Unlock, Plus, Edit2, Trash2, Image as ImageIcon, 
@@ -56,6 +56,10 @@ export default function AdminModal({ isOpen, onClose }) {
   const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [pwdMsg, setPwdMsg] = useState('');
+
+  useEffect(() => {
+    setPersonalForm({ ...personal });
+  }, [personal, isOpen]);
 
   // Estado formulario de proyectos
   const [projectForm, setProjectForm] = useState({
@@ -658,34 +662,205 @@ export default function AdminModal({ isOpen, onClose }) {
                         className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none font-mono"
                       />
 </div>
-{/* Pillars (JSON) */}
-<div className="grid grid-cols-1 gap-4 mt-2">
-  <label className="block text-xs font-mono text-zinc-400 mb-1">Pilares (JSON)</label>
-  <textarea rows={6}
-    value={JSON.stringify(personalForm.pillars, null, 2)}
-    onChange={(e) => {
-      try {
-        const parsed = JSON.parse(e.target.value);
-        setPersonalForm({ ...personalForm, pillars: parsed });
-      } catch (err) {}
-    }}
-    className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
-  />
-</div>
-{/* Soft Skills (JSON) */}
-<div className="grid grid-cols-1 gap-4 mt-2">
-  <label className="block text-xs font-mono text-zinc-400 mb-1">Soft Skills (JSON)</label>
-  <textarea rows={4}
-    value={JSON.stringify(personalForm.softSkills, null, 2)}
-    onChange={(e) => {
-      try {
-        const parsed = JSON.parse(e.target.value);
-        setPersonalForm({ ...personalForm, softSkills: parsed });
-      } catch (err) {}
-    }}
-    className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
-  />
-</div>
+                  </div>
+
+                  {/* Texto del Pie de Página / Tecnologías */}
+                  <div className="pt-2 border-t border-zinc-800/80">
+                    <label className="block text-xs font-mono text-zinc-300 font-semibold mb-1">
+                      Texto del Pie de Página (Footer)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej: React 19 + Tailwind CSS · Deploy en Vercel"
+                      value={personalForm.footerText ?? ''}
+                      onChange={(e) => setPersonalForm({ ...personalForm, footerText: e.target.value })}
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-2 text-xs text-white focus:border-accent focus:outline-none"
+                    />
+                    <p className="text-[11px] text-zinc-500 mt-1">Este texto se muestra en la parte inferior de la página web.</p>
+                  </div>
+
+                  {/* Idiomas */}
+                  <div className="pt-3 border-t border-zinc-800/80">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-mono text-zinc-300 font-semibold">
+                        Idiomas (Trayectoria)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = personalForm.languages || [{ name: 'Español', level: 'Nativo' }, { name: 'Inglés', level: 'A2' }];
+                          setPersonalForm({
+                            ...personalForm,
+                            languages: [...current, { name: '', level: '' }]
+                          });
+                        }}
+                        className="inline-flex items-center gap-1 text-[11px] font-mono text-accent hover:underline cursor-pointer"
+                      >
+                        <Plus className="h-3 w-3" />
+                        <span>Agregar Idioma</span>
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {(personalForm.languages || [
+                        { name: 'Español', level: 'Nativo' },
+                        { name: 'Inglés', level: 'A2' }
+                      ]).map((lang, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="Idioma (ej: Español, Inglés)"
+                            value={lang.name}
+                            onChange={(e) => {
+                              const updated = [...(personalForm.languages || [{ name: 'Español', level: 'Nativo' }, { name: 'Inglés', level: 'A2' }])];
+                              updated[idx] = { ...updated[idx], name: e.target.value };
+                              setPersonalForm({ ...personalForm, languages: updated });
+                            }}
+                            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-accent focus:outline-none"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Nivel (ej: Nativo, B2, A2)"
+                            value={lang.level}
+                            onChange={(e) => {
+                              const updated = [...(personalForm.languages || [{ name: 'Español', level: 'Nativo' }, { name: 'Inglés', level: 'A2' }])];
+                              updated[idx] = { ...updated[idx], level: e.target.value };
+                              setPersonalForm({ ...personalForm, languages: updated });
+                            }}
+                            className="w-32 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-accent focus:outline-none font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const current = personalForm.languages || [{ name: 'Español', level: 'Nativo' }, { name: 'Inglés', level: 'A2' }];
+                              setPersonalForm({
+                                ...personalForm,
+                                languages: current.filter((_, i) => i !== idx)
+                              });
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-red-400 cursor-pointer"
+                            title="Eliminar idioma"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pilares Técnicos (Sobre mí) */}
+                  <div className="pt-3 border-t border-zinc-800/80">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-mono text-zinc-300 font-semibold">
+                        Pilares Técnicos (Sección Sobre Mí)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = personalForm.pillars || [];
+                          setPersonalForm({
+                            ...personalForm,
+                            pillars: [...current, { title: '', description: '' }]
+                          });
+                        }}
+                        className="inline-flex items-center gap-1 text-[11px] font-mono text-accent hover:underline cursor-pointer"
+                      >
+                        <Plus className="h-3 w-3" />
+                        <span>Agregar Pilar</span>
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {(personalForm.pillars || []).map((pillar, idx) => (
+                        <div key={idx} className="p-3 rounded-xl border border-zinc-800 bg-zinc-900/60 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-mono text-accent font-semibold">Pilar #{idx + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = (personalForm.pillars || []).filter((_, i) => i !== idx);
+                                setPersonalForm({ ...personalForm, pillars: updated });
+                              }}
+                              className="text-zinc-500 hover:text-red-400 p-1 cursor-pointer"
+                              title="Eliminar pilar"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Título del pilar (ej: Desarrollo Frontend)"
+                            value={pillar.title}
+                            onChange={(e) => {
+                              const updated = [...(personalForm.pillars || [])];
+                              updated[idx] = { ...updated[idx], title: e.target.value };
+                              setPersonalForm({ ...personalForm, pillars: updated });
+                            }}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-accent focus:outline-none"
+                          />
+                          <textarea
+                            rows={2}
+                            placeholder="Descripción del pilar..."
+                            value={pillar.description}
+                            onChange={(e) => {
+                              const updated = [...(personalForm.pillars || [])];
+                              updated[idx] = { ...updated[idx], description: e.target.value };
+                              setPersonalForm({ ...personalForm, pillars: updated });
+                            }}
+                            className="w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-accent focus:outline-none leading-relaxed"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Habilidades Interpersonales (Soft Skills) */}
+                  <div className="pt-3 border-t border-zinc-800/80">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-mono text-zinc-300 font-semibold">
+                        Habilidades Interpersonales (Soft Skills)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const current = personalForm.softSkills || [];
+                          setPersonalForm({
+                            ...personalForm,
+                            softSkills: [...current, '']
+                          });
+                        }}
+                        className="inline-flex items-center gap-1 text-[11px] font-mono text-accent hover:underline cursor-pointer"
+                      >
+                        <Plus className="h-3 w-3" />
+                        <span>Agregar Habilidad</span>
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {(personalForm.softSkills || []).map((skill, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="Habilidad (ej: Trabajo en equipo)"
+                            value={skill}
+                            onChange={(e) => {
+                              const updated = [...(personalForm.softSkills || [])];
+                              updated[idx] = e.target.value;
+                              setPersonalForm({ ...personalForm, softSkills: updated });
+                            }}
+                            className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-xs text-white focus:border-accent focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (personalForm.softSkills || []).filter((_, i) => i !== idx);
+                              setPersonalForm({ ...personalForm, softSkills: updated });
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-red-400 cursor-pointer"
+                            title="Eliminar habilidad"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="pt-3">

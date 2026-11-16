@@ -2,7 +2,7 @@ import { usePortfolio } from '../context/PortfolioContext';
 import { Briefcase, GraduationCap, Calendar, Building2 } from 'lucide-react';
 
 export default function Experience() {
-  const { experience, education } = usePortfolio();
+  const { experience, education, personal } = usePortfolio();
 
   return (
     <section id="experience" className="relative py-24 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#05070c] transition-colors">
@@ -112,9 +112,15 @@ export default function Experience() {
               {/* Languages Card from CV */}
               <div className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/50 p-5 font-mono text-xs text-slate-600 dark:text-zinc-400 space-y-2 shadow-2xs">
                 <p className="font-semibold text-slate-900 dark:text-zinc-300">Idiomas:</p>
-                <div className="flex gap-4">
-                  <span>Español: <span className="text-accent font-semibold">Nativo</span></span>
-                  <span>Inglés: <span className="text-accent font-semibold">A2</span></span>
+                <div className="flex flex-wrap gap-4">
+                  {(personal.languages && personal.languages.length > 0 ? personal.languages : [
+                    { name: "Español", level: "Nativo" },
+                    { name: "Inglés", level: "A2" }
+                  ]).map((lang, lIdx) => (
+                    <span key={lIdx}>
+                      {lang.name}: <span className="text-accent font-semibold">{lang.level}</span>
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>

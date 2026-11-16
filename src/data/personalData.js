@@ -15,6 +15,11 @@ export const personalData = {
   linkedin: "https://linkedin.com/in/emanuel-ferreyra",
   portfolioRepo: "https://github.com/1elema1/portfolioferreyra",
   cvFileName: "Emanuel_Ferreyra_CV.pdf",
+  languages: [
+    { name: "Español", level: "Nativo" },
+    { name: "Inglés", level: "A2" }
+  ],
+  footerText: "React 19 + Tailwind CSS · Deploy en Vercel",
   pillars: [
     { title: "Análisis & Requerimientos", description: "Relevamiento de necesidades del cliente, diseño de soluciones a medida, modelado de sistemas en diagramas UML (casos de uso, clases, secuencia)." },
     { title: "Desarrollo Frontend", description: "Creación de interfaces gráficas interactivas con React, JavaScript moderno y Tailwind CSS, garantizando experiencia de usuario intuitiva y 100% responsiva." },

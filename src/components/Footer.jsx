@@ -23,7 +23,7 @@ export default function Footer() {
 
         {/* Tech message */}
         <p className="text-slate-500 dark:text-zinc-400 text-center flex items-center gap-1 font-sans">
-          React 19 + Tailwind CSS · Deploy en Vercel
+          {personal.footerText || "React 19 + Tailwind CSS · Deploy en Vercel"}
         </p>
 
         {/* Actions */}
