@@ -36,7 +36,7 @@ export default function Skills() {
   ];
 
   return (
-    <section id="skills" className="relative py-24 border-t border-zinc-800/80 dark:border-zinc-800/80 light:border-zinc-200 bg-zinc-950/70 dark:bg-zinc-950/70 light:bg-white transition-colors">
+    <section id="skills" className="relative py-24 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#05070c] transition-colors">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -44,10 +44,10 @@ export default function Skills() {
           <p className="font-mono text-xs uppercase tracking-widest text-accent mb-2">
             / stack tecnológico
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white dark:text-white light:text-zinc-900">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
             Habilidades & Tecnologías
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-zinc-400 dark:text-zinc-400 light:text-zinc-600 font-light">
+          <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-zinc-400 font-normal">
             Conjunto de herramientas y metodologías aplicadas en proyectos reales y desarrollo continuo.
           </p>
         </div>
@@ -65,12 +65,12 @@ export default function Skills() {
                   <div className="p-2 rounded-lg bg-accent-light border border-accent">
                     {category.icon}
                   </div>
-                  <h3 className="font-semibold text-white dark:text-white light:text-zinc-900 text-base">
+                  <h3 className="font-semibold text-slate-900 dark:text-white text-base">
                     {category.title}
                   </h3>
                 </div>
 
-                <p className="text-xs text-zinc-400 dark:text-zinc-400 light:text-zinc-600 mb-5 leading-relaxed font-light">
+                <p className="text-xs text-slate-600 dark:text-zinc-400 mb-5 leading-relaxed">
                   {category.description}
                 </p>
 
@@ -79,7 +79,7 @@ export default function Skills() {
                   {category.items.map((skill, index) => (
                     <span
                       key={index}
-                      className="group inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 dark:border-zinc-800 light:border-zinc-200 bg-zinc-900/90 dark:bg-zinc-900/90 light:bg-zinc-100 px-2.5 py-1 text-xs font-mono text-zinc-300 dark:text-zinc-300 light:text-zinc-700 transition-all duration-200 hover:border-accent hover:bg-accent-light hover:text-accent hover:scale-105 cursor-default"
+                      className="group inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-slate-100 dark:bg-zinc-900 px-2.5 py-1 text-xs font-mono text-slate-700 dark:text-zinc-300 transition-all duration-150 hover:border-accent hover:bg-accent-light hover:text-accent cursor-default"
                     >
                       <span className="h-1.5 w-1.5 rounded-full bg-accent opacity-75 group-hover:opacity-100"></span>
                       <span>{skill.name}</span>
@@ -89,7 +89,7 @@ export default function Skills() {
               </div>
 
               {/* Card footer indicator */}
-              <div className="mt-6 pt-3 border-t border-zinc-800/80 dark:border-zinc-800/80 light:border-zinc-200 flex items-center justify-between text-[11px] font-mono text-zinc-500">
+              <div className="mt-6 pt-3 border-t border-slate-100 dark:border-zinc-800/80 flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-zinc-500">
                 <span>{category.items.length} tecnologías</span>
                 <span className="text-accent font-medium">Activo</span>
               </div>

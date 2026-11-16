@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es" class="scroll-smooth">
+<html lang="es" class="light scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <title>Emanuel Ferreyra — Analista en Sistemas & Full Stack Developer</title>
     <meta name="description" content="Portfolio profesional de Emanuel Ferreyra. Analista de Sistemas y Desarrollador Full Stack enfocado en el desarrollo de aplicaciones web end-to-end con React, Node.js, Express y bases de datos. Córdoba, Argentina." />
     <meta name="author" content="Emanuel Ferreyra" />
@@ -15,12 +15,28 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_AR" />
 
-    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <!-- Google Fonts: Inter & JetBrains Mono with font-display swap for ultra fast mobile rendering -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Anti-flicker theme initialization: defaults to light mode -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('portfolio_ferreyra_theme_mode_v4');
+          if (saved === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-zinc-950 text-zinc-100 antialiased selection:bg-emerald-500/20 selection:text-emerald-300">
+  <body class="bg-slate-50 dark:bg-[#05070c] text-slate-900 dark:text-zinc-100 antialiased selection:bg-blue-500/20 selection:text-blue-600 dark:selection:text-blue-300">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

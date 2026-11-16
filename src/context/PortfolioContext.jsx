@@ -85,13 +85,13 @@ const DEFAULT_SECTIONS = {
 };
 
 export function PortfolioProvider({ children }) {
-  // 1. Tema Claro / Oscuro (público)
+  // 1. Tema Claro / Oscuro (público) - Light por defecto
   const [themeMode, setThemeMode] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.THEME_MODE);
       if (saved) return saved;
     } catch (e) {}
-    return 'dark';
+    return 'light';
   });
 
   // 2. Color de acento
@@ -310,7 +310,7 @@ export function PortfolioProvider({ children }) {
     setEducation(defaultEducation);
     setSections(DEFAULT_SECTIONS);
     setAccentKey('blue');
-    setThemeMode('dark');
+    setThemeMode('light');
     Object.values(STORAGE_KEYS).forEach(k => {
       if (k !== STORAGE_KEYS.PWD) localStorage.removeItem(k);
     });
